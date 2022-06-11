@@ -70,6 +70,8 @@ router.get<unknown, StatusResponse>('/status', async (req, res) => {
     }
   }
 
+
+  updateAvailable = false
   return res.status(200).json({
     version: getAppVersion(),
     commitTag: getCommitTag(),
