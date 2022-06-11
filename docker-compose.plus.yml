@@ -1,0 +1,11 @@
+# Used for overseerrPlus production
+version: '3'
+services:
+  overseerr:
+    build:
+      context: .
+      dockerfile: Dockerfile.plus
+    ports:
+      - 5055:5055
+    volumes:
+      - ./prodConfig:/app/config
