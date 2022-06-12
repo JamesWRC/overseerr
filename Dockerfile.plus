@@ -5,7 +5,7 @@ RUN apk add --no-cache git
 
 RUN echo "a"
 
-RUN git clone --depth 1 -b plus/production https://github.com/JamesWRC/overseerrPlus overseerrPlusTemp
+RUN git clone --depth 1 -b plus/develop https://github.com/JamesWRC/overseerrPlus overseerrPlusTemp
 RUN ls 
 RUN pwd
 
