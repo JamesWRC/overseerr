@@ -26,7 +26,9 @@ const StatusChecker: React.FC = () => {
   if (!data) {
     return null;
   }
-
+  // OverseerrPlus force no update massage.
+  // Reason: Stop update messages spamming admins.
+  return null;
   return (
     <Transition
       enter="opacity-0 transition duration-300"
