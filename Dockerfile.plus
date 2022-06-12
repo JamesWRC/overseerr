@@ -3,6 +3,7 @@ FROM sctx/overseerr:latest
 # Install git
 RUN apk add --no-cache git
 
+RUN echo "a"
 
 RUN git clone --depth 1 -b plus/production https://github.com/JamesWRC/overseerrPlus overseerrPlusTemp
 RUN ls 
@@ -13,6 +14,8 @@ RUN ls overseerrPlusTemp
 
 RUN cp -R overseerrPlusTemp/* .
 RUN rm -rf overseerrPlusTemp
-#
+
+
+
 RUN yarn install
 RUN yarn build

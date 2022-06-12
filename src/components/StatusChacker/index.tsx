@@ -9,7 +9,7 @@ import Transition from '../Transition';
 const messages = defineMessages({
   newversionavailable: 'Application Update',
   newversionDescription:
-    'Overseerr has been updated! Please click the button below to reload the page.',
+    'Overseerr has been updated! Please click the button below to reload the page. Test',
   reloadOverseerr: 'Reload',
 });
 
