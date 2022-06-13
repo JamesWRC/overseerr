@@ -1,0 +1,21 @@
+FROM sctx/overseerr:latest
+
+# Install git
+RUN apk add --no-cache git
+# Set up yarn early since this takes a while
+RUN yarn
+
+WORKDIR /app
+
+
+COPY . /app/overseerrPlusTemp
+
+
+
+RUN cp -R overseerrPlusTemp/* .
+RUN rm -rf overseerrPlusTemp
+
+# RUN yarn install
+# RUN yarn build
+
+CMD yarn dev
