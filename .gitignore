@@ -57,3 +57,5 @@ config/db/db.sqlite3-journal
 
 # OverseerrPlus prod config test
 prodConfig
+*.env
+committag.json

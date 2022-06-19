@@ -27,7 +27,7 @@ import { getSettings, MainSettings } from '../../lib/settings';
 import logger from '../../logger';
 import { isAuthenticated } from '../../middleware/auth';
 import { appDataPath } from '../../utils/appDataVolume';
-import { getAppVersion } from '../../utils/appVersion';
+import { getAppVersion, getPlusAppVersion } from '../../utils/appVersion';
 import notificationRoutes from './notifications';
 import radarrRoutes from './radarr';
 import sonarrRoutes from './sonarr';
@@ -562,6 +562,7 @@ settingsRoutes.get('/about', async (req, res) => {
 
   return res.status(200).json({
     version: getAppVersion(),
+    plusVersion: getPlusAppVersion(),
     totalMediaItems,
     totalRequests,
     tz: process.env.TZ,

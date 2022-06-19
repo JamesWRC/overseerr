@@ -10,7 +10,12 @@ import { checkUser, isAuthenticated } from '../middleware/auth';
 import { mapProductionCompany } from '../models/Movie';
 import { mapNetwork } from '../models/Tv';
 import { appDataPath, appDataStatus } from '../utils/appDataVolume';
-import { getAppVersion, getCommitTag } from '../utils/appVersion';
+import {
+  getAppVersion,
+  getCommitTag,
+  getPlusAppVersion,
+  getPlusCommitTag,
+} from '../utils/appVersion';
 import { isPerson } from '../utils/typeHelpers';
 import authRoutes from './auth';
 import collectionRoutes from './collection';
@@ -36,8 +41,12 @@ router.get<unknown, StatusResponse>('/status', async (req, res) => {
 
   const currentVersion = getAppVersion();
   const commitTag = getCommitTag();
+  const plusCurrentVersion = getPlusAppVersion();
+  const plusCommitTag = getPlusCommitTag();
   let updateAvailable = false;
+  const plusUpdateAvailable = false;
   let commitsBehind = 0;
+  let plusCommitsBehind = 0;
 
   if (currentVersion.startsWith('develop-') && commitTag !== 'local') {
     const commits = await githubApi.getOverseerrCommits();
@@ -70,12 +79,35 @@ router.get<unknown, StatusResponse>('/status', async (req, res) => {
     }
   }
 
-  updateAvailable = false
+  // Get OverseerrPlus commit data
+  const releases = await githubApi.getOverseerrPlusReleases();
+  const commits = await githubApi.getOverseerrCommits();
+
+  if (releases.length) {
+    const filteredCommits = commits.filter(
+      (commit) => !commit.commit.message.includes('[skip ci]')
+    );
+    if (filteredCommits[0].sha !== plusCommitTag) {
+      updateAvailable = true;
+    }
+    const commitIndex = filteredCommits.findIndex(
+      (commit) => commit.sha === plusCommitTag
+    );
+
+    if (plusUpdateAvailable) {
+      plusCommitsBehind = commitIndex;
+    }
+  }
+
   return res.status(200).json({
     version: getAppVersion(),
     commitTag: getCommitTag(),
+    plusVersion: plusCurrentVersion,
+    plusCommitTag: plusCommitTag,
     updateAvailable,
     commitsBehind,
+    plusUpdateAvailable,
+    plusCommitsBehind,
   });
 });
 

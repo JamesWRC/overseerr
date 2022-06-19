@@ -5,10 +5,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.plus.local
+      # container_name: overseerrPlus
+    image: overseerrplus:dev
+    env_file:
+      - .dev.plus.env
     ports:
       - 5055:5055
     volumes:
-      - .:/app:rw,cached
+      - .:/app:rw
       - /app/node_modules
       - /app/.next
       - ./config:/app/config
