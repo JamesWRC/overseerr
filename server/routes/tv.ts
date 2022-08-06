@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { TmdbTvDetails } from '../../server/api/themoviedb/interfaces';
 import RottenTomatoes from '../api/rottentomatoes';
 import TheMovieDb from '../api/themoviedb';
 import { MediaType } from '../constants/media';
@@ -6,16 +7,39 @@ import Media from '../entity/Media';
 import logger from '../logger';
 import { mapTvResult } from '../models/Search';
 import { mapSeasonWithEpisodes, mapTvDetails } from '../models/Tv';
-
 const tvRoutes = Router();
 
 tvRoutes.get('/:id', async (req, res, next) => {
   const tmdb = new TheMovieDb();
+
+  const headers = req.headers;
+  const TV_ID = req.params.id;
+
+  const OTHER_DB_SERVICE_HEADER = 'x-db-service';
+
+  // All supported DB services other than the default TMDB
+  const IMDB = 'IMDB';
+  const IMDB_PREFIX = 'tt';
+
   try {
-    const tv = await tmdb.getTvShow({
-      tvId: Number(req.params.id),
-      language: req.locale ?? (req.query.language as string),
-    });
+    let tv;
+    let DB_SERVICE = '';
+
+    if (OTHER_DB_SERVICE_HEADER in headers) {
+      DB_SERVICE = headers[OTHER_DB_SERVICE_HEADER] as string;
+    }
+
+    if (DB_SERVICE === IMDB) {
+      tv = <TmdbTvDetails>await tmdb.getMediaByImdbId({
+        imdbId: IMDB_PREFIX + TV_ID,
+        language: req.locale ?? (req.query.language as string),
+      });
+    } else {
+      tv = await tmdb.getTvShow({
+        tvId: Number(TV_ID),
+        language: req.locale ?? (req.query.language as string),
+      });
+    }
 
     const media = await Media.getMedia(tv.id, MediaType.TV);
 

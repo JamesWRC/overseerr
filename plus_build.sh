@@ -8,6 +8,7 @@ CMD_VALID=false
 PLUS_DOCKER_BUILD_TAG="dev"
 PLUS_GIT_BRANCH="plus/develop"
 
+
 # Check script arguments are valid
 if [ "${BUILD_ENV}" == "PROD" ] || [ "${BUILD_ENV}" == "STAGING" ] || [ "${BUILD_ENV}" == "DEV" ]; then
     CMD_VALID=true

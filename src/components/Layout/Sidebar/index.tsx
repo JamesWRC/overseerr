@@ -18,6 +18,7 @@ import VersionStatus from '../VersionStatus';
 const messages = defineMessages({
   dashboard: 'Discover',
   requests: 'Requests',
+  arrivals: 'Arrivals',
   issues: 'Issues',
   users: 'Users',
   settings: 'Settings',
@@ -48,6 +49,12 @@ const SidebarLinks: SidebarLinkProps[] = [
   {
     href: '/requests',
     messagesKey: 'requests',
+    svgIcon: <ClockIcon className="mr-3 h-6 w-6" />,
+    activeRegExp: /^\/requests/,
+  },
+  {
+    href: '/arrivals',
+    messagesKey: 'arrivals',
     svgIcon: <ClockIcon className="mr-3 h-6 w-6" />,
     activeRegExp: /^\/requests/,
   },

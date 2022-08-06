@@ -1,11 +1,6 @@
 # FROM sctx/overseerr:latest
 FROM node:16.14-alpine
 
-
-# Set up yarn early since this takes a while
-RUN yarn
-
-
 ARG COMMIT_TAG
 ENV COMMIT_TAG=${COMMIT_TAG}
 
@@ -19,8 +14,10 @@ ENV PLUS_BUILD_ENV=${PLUS_BUILD_ENV}
 # Install git
 RUN apk add --no-cache git
 
+COPY . /app
 WORKDIR /app
 
+RUN yarn install
 
 # RUN yarn build
 CMD echo "{\"commitTag\": \"${COMMIT_TAG}\", \"plusCommitTag\": \"${PLUS_COMMIT_TAG}\"}" > committag.json && yarn dev
