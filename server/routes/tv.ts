@@ -1,13 +1,80 @@
 import { Router } from 'express';
 import { TmdbTvDetails } from '../../server/api/themoviedb/interfaces';
 import RottenTomatoes from '../api/rottentomatoes';
+import SonarrAPI from '../api/servarr/sonarr';
 import TheMovieDb from '../api/themoviedb';
 import { MediaType } from '../constants/media';
 import Media from '../entity/Media';
+import { getSettings } from '../lib/settings';
 import logger from '../logger';
 import { mapTvResult } from '../models/Search';
 import { mapSeasonWithEpisodes, mapTvDetails } from '../models/Tv';
 const tvRoutes = Router();
+
+
+tvRoutes.get('/calendar', async (req, res, next) => {
+  const SONARR_API_VERSION = '/api/v3'
+
+  const tmdb = new TheMovieDb();
+  const settings = getSettings();
+
+  const sonarrSettings = settings.sonarr
+
+  if (!sonarrSettings || sonarrSettings.length === 0) {
+    return next({
+      status: 404,
+      message: 'No Sonarr server has been setup.',
+    });
+  }
+
+  try {
+    // Search through all sonarr servers
+    for (const sonarrInstance of sonarrSettings) {
+      const sonarr = new SonarrAPI({
+        apiKey: sonarrInstance.apiKey,
+        url: SonarrAPI.buildUrl(sonarrInstance, SONARR_API_VERSION),
+      });
+
+      let startTime = req.query.startTime as string;
+      let endTime = req.query.endTime as string;
+
+      if (!startTime) {
+        startTime = new Date().toISOString();
+      }
+      if (!endTime) {
+        endTime = new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000).toISOString();
+      }
+
+      const calData = await sonarr.getCalendarItems(startTime, endTime)
+      const arrivingShows = []
+      const episodeData = []
+      const episodeMedia = []
+      // search through all scheduled items
+      for (const show of calData) {
+        const sonarrSeriesID = Number(show.seriesId)
+        const showData = await sonarr.getSeriesByID(sonarrSeriesID)
+
+        const tv = <TmdbTvDetails>await tmdb.getMediaByImdbId({
+          imdbId: showData.imdbId,
+          language: req.locale ?? (req.query.language as string),
+        });
+        const media = await Media.getMedia(tv.id, MediaType.TV);
+
+
+        arrivingShows.push(tv)
+        episodeData.push(show)
+        episodeMedia.push(media)
+      }
+      return res.status(200).json({ shows: arrivingShows, episodes: episodeData, episodeMedia: episodeMedia });
+    }
+  } catch (e) {
+    logger.debug('Something went wrong retrieving calendar data.', { label: 'API', errorMessage: e.message });
+    return next({
+      status: 500,
+      message: 'Unable to retrieve calendar data.'
+    });
+  }
+});
 
 tvRoutes.get('/:id', async (req, res, next) => {
   const tmdb = new TheMovieDb();
@@ -56,6 +123,7 @@ tvRoutes.get('/:id', async (req, res, next) => {
     });
   }
 });
+
 
 tvRoutes.get('/:id/season/:seasonNumber', async (req, res, next) => {
   const tmdb = new TheMovieDb();

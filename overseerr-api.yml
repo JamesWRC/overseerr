@@ -4804,6 +4804,35 @@ paths:
                   audienceRating:
                     type: string
                     enum: ['Spilled', 'Upright']
+  /tv/calendar:
+    get:
+      summary: Get upcoming scheduled shows
+      description: Returns TV objects of scheduled shows.
+      tags:
+        - tv
+      parameters:
+        - in: query
+          name: startTime
+          schema:
+            type: string
+            example: '2022-07-23T14:00:00.000Z'
+        - in: query
+          name: endTime
+          schema:
+            type: string
+            example: '2022-08-13T13:59:59.999Z'
+        - in: query
+          name: language
+          schema:
+            type: string
+            example: en
+      responses:
+        '200':
+          description: TV details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TvDetails'
   /tv/{tvId}:
     get:
       summary: Get TV details

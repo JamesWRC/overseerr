@@ -82,6 +82,23 @@ export interface LanguageProfile {
   name: string;
 }
 
+export interface CalendarItem {
+
+  seriesId: number,
+  episodeFileId: number,
+  seasonNumber: number,
+  episodeNumber: number,
+  title: string,
+  airDate: string,
+  airDateUtc: string,
+  overview: string,
+  hasFile: boolean,
+  monitored: boolean,
+  absoluteEpisodeNumber: number,
+  unverifiedSceneNumbering: boolean,
+  id: number
+}
+
 class SonarrAPI extends ServarrBase<{ seriesId: number; episodeId: number }> {
   constructor({ url, apiKey }: { url: string; apiKey: string }) {
     super({ url, apiKey, apiName: 'Sonarr', cacheName: 'sonarr' });
@@ -94,6 +111,34 @@ class SonarrAPI extends ServarrBase<{ seriesId: number; episodeId: number }> {
       return response.data;
     } catch (e) {
       throw new Error(`[Sonarr] Failed to retrieve series: ${e.message}`);
+    }
+  }
+
+  public async getSeriesByID(seriesId: number): Promise<SonarrSeries> {
+    try {
+      // Will get all items in the calendar
+      const seriesRequest = await this.axios.get<SonarrSeries>(`/series/${seriesId}`)
+
+      return seriesRequest.data;
+
+    } catch (e) {
+      throw new Error(`[Sonarr] Failed to retrieve calendar data: ${e.message}`);
+    }
+  }
+
+  public async getCalendarItems(startTime: string, endTime: string): Promise<CalendarItem[]> {
+    try {
+      // Will get all items in the calendar
+      const calendarItemsRequest = await this.axios.get<CalendarItem[]>('/calendar', {
+        params: {
+          unmonitored: false, start: startTime, end: endTime
+        },
+      })
+
+      return calendarItemsRequest.data;
+
+    } catch (e) {
+      throw new Error(`[Sonarr] Failed to retrieve calendar data: ${e.message}`);
     }
   }
 
@@ -122,7 +167,7 @@ class SonarrAPI extends ServarrBase<{ seriesId: number; episodeId: number }> {
 
   public async getSeriesByTvdbId(id: number): Promise<SonarrSeries> {
     try {
-      const response = await this.axios.get<SonarrSeries[]>('/series/lookup', {
+      const response = await this.axios.get<SonarrSeries[]>('/series', {
         params: {
           term: `tvdb:${id}`,
         },
@@ -302,6 +347,7 @@ class SonarrAPI extends ServarrBase<{ seriesId: number; episodeId: number }> {
 
     return newSeasons;
   }
+
 }
 
 export default SonarrAPI;
