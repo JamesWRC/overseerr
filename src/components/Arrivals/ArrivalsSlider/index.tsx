@@ -87,6 +87,7 @@ const ArrivalsSlider: React.FC<MediaSliderProps> = ({
 
         return (
             <TitleCard
+                key={`arrival-${currTitle.id}`}
                 id={currTitle.id}
                 image={currTitle.poster_path}
                 status={episode?.hasFile ? MediaStatus.AVAILABLE : MediaStatus.PENDING}
