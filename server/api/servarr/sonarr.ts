@@ -1,6 +1,5 @@
 import logger from '../../logger';
 import ServarrBase from './base';
-
 interface SonarrSeason {
   seasonNumber: number;
   monitored: boolean;
@@ -77,13 +76,7 @@ export interface AddSeriesOptions {
   searchNow?: boolean;
 }
 
-export interface LanguageProfile {
-  id: number;
-  name: string;
-}
-
-export interface CalendarItem {
-
+export interface ShowCalendarItem {
   seriesId: number,
   episodeFileId: number,
   seasonNumber: number,
@@ -97,6 +90,11 @@ export interface CalendarItem {
   absoluteEpisodeNumber: number,
   unverifiedSceneNumbering: boolean,
   id: number
+}
+
+export interface LanguageProfile {
+  id: number;
+  name: string;
 }
 
 class SonarrAPI extends ServarrBase<{ seriesId: number; episodeId: number }> {
@@ -126,10 +124,11 @@ class SonarrAPI extends ServarrBase<{ seriesId: number; episodeId: number }> {
     }
   }
 
-  public async getCalendarItems(startTime: string, endTime: string): Promise<CalendarItem[]> {
+  public async getCalendarItems(startTime: string, endTime: string): Promise<ShowCalendarItem[]> {
     try {
-      // Will get all items in the calendar
-      const calendarItemsRequest = await this.axios.get<CalendarItem[]>('/calendar', {
+
+      // Request calendar items from Sonarr
+      const calendarItemsRequest = await this.axios.get<ShowCalendarItem[]>('/calendar', {
         params: {
           unmonitored: false, start: startTime, end: endTime
         },

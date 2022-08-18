@@ -4647,6 +4647,35 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MediaRequest'
+  /movie/calendar:
+    get:
+      summary: Get upcoming scheduled movies
+      description: Returns Movie objects of scheduled movies.
+      tags:
+        - movies
+      parameters:
+        - in: query
+          name: startTime
+          schema:
+            type: string
+            example: '2022-07-23T14:00:00.000Z'
+        - in: query
+          name: endTime
+          schema:
+            type: string
+            example: '2022-08-13T13:59:59.999Z'
+        - in: query
+          name: language
+          schema:
+            type: string
+            example: en
+      responses:
+        '200':
+          description: Movie details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MovieDetails'
   /movie/{movieId}:
     get:
       summary: Get movie details

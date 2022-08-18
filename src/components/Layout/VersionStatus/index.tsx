@@ -2,7 +2,7 @@ import {
   ArrowCircleUpIcon,
   BeakerIcon,
   CodeIcon,
-  ServerIcon,
+  ServerIcon
 } from '@heroicons/react/outline';
 import Link from 'next/link';
 import React from 'react';
@@ -36,19 +36,19 @@ const VersionStatus: React.FC<VersionStatusProps> = ({ onClick }) => {
     data.commitTag === 'local'
       ? 'Keep it up! 👍'
       : data.version.startsWith('develop-')
-      ? intl.formatMessage(messages.streamdevelop)
-      : intl.formatMessage(messages.streamstable);
+        ? intl.formatMessage(messages.streamdevelop)
+        : intl.formatMessage(messages.streamstable);
 
   const plusVersionStream =
     data.plusCommitTag === 'local'
       ? 'Keep it up! 👍'
-      : data.version.startsWith('develop-')
-      ? 'OverseerrPlus Develop'
-      : 'OverseerrPlus Stable';
+      : data.plusVersion.startsWith('develop-')
+        ? 'OverseerrPlus Develop'
+        : 'OverseerrPlus Stable';
 
   return (
     <div>
-      <div>
+      <div className="pb-4">
         <Link href="/settings/about">
           <a
             onClick={onClick}
@@ -59,11 +59,10 @@ const VersionStatus: React.FC<VersionStatusProps> = ({ onClick }) => {
             }}
             role="button"
             tabIndex={0}
-            className={`mx-2 flex items-center rounded-lg p-2 text-xs ring-1 ring-gray-700 transition duration-300 ${
-              data.plusUpdateAvailable
-                ? 'bg-yellow-500 text-white hover:bg-yellow-400'
-                : 'bg-gray-900 text-gray-300 hover:bg-gray-800'
-            }`}
+            className={`mx-2 flex items-center rounded-lg p-2 text-xs ring-1 ring-gray-700 transition duration-300 ${data.plusUpdateAvailable
+              ? 'bg-yellow-500 text-white hover:bg-yellow-400'
+              : 'bg-gray-900 text-gray-300 hover:bg-gray-800'
+              }`}
           >
             {data.commitTag === 'local' ? (
               <CodeIcon className="h-6 w-6" />
@@ -85,7 +84,7 @@ const VersionStatus: React.FC<VersionStatusProps> = ({ onClick }) => {
                   intl.formatMessage(messages.outofdate)
                 ) : (
                   <code className="bg-transparent p-0">
-                    {data.version.replace('develop-', '')}
+                    {data.plusVersion.replace('develop-', '')}
                   </code>
                 )}
               </span>
@@ -93,7 +92,6 @@ const VersionStatus: React.FC<VersionStatusProps> = ({ onClick }) => {
             {data.updateAvailable && <ArrowCircleUpIcon className="h-6 w-6" />}
           </a>
         </Link>
-        <br />
       </div>
       <Link href="/settings/about">
         <a
@@ -105,11 +103,10 @@ const VersionStatus: React.FC<VersionStatusProps> = ({ onClick }) => {
           }}
           role="button"
           tabIndex={0}
-          className={`mx-2 flex items-center rounded-lg p-2 text-xs ring-1 ring-gray-700 transition duration-300 ${
-            data.updateAvailable
-              ? 'bg-yellow-500 text-white hover:bg-yellow-400'
-              : 'bg-gray-900 text-gray-300 hover:bg-gray-800'
-          }`}
+          className={`mx-2 flex items-center rounded-lg p-2 text-xs ring-1 ring-gray-700 transition duration-300 ${data.updateAvailable
+            ? 'bg-yellow-500 text-white hover:bg-yellow-400'
+            : 'bg-gray-900 text-gray-300 hover:bg-gray-800'
+            }`}
         >
           {data.commitTag === 'local' ? (
             <CodeIcon className="h-6 w-6" />
