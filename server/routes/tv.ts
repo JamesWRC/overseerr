@@ -107,6 +107,17 @@ tvRoutes.get('/calendar', async (req, res, next) => {
           media.status = status
         }
 
+        // Update tv episode number since this object may be weeks ahead of the next episode data.
+        if (tv.next_episode_to_air) {
+          // Update show season / episode numbers.
+          tv.next_episode_to_air.season_number = show.seasonNumber
+          tv.next_episode_to_air.episode_number = show.episodeNumber
+
+          // Update show date and description.
+          tv.next_episode_to_air.air_date = show.airDateUtc
+          tv.next_episode_to_air.overview = show.title
+        }
+
         // Add the mapped movie and mediaInfo to an array
         calItems.push(mapTvDetails(tv, media))
       }

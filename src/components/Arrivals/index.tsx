@@ -22,6 +22,8 @@ const messages = defineMessages({
   saturday: 'Saturday',
   sunday: 'Sunday',
   nextWeek: 'Next Week',
+  laterThisMonth: 'Later this month',
+  nextMonth: 'Next month'
 });
 
 const Arrivals: React.FC = () => {
@@ -100,11 +102,62 @@ const Arrivals: React.FC = () => {
     weekDayElements.push(weekDaySlider)
   }
 
+  const nextWeekBase = new Date(new Date().setHours(0, 0, 0, 0))
+  const nextWeekStartDate = new Date(nextWeekBase.getTime() + 7 * 24 * 60 * 60 * 1000);
+  const nextWeekEndDate = new Date(nextWeekBase.getTime() + 14 * 24 * 60 * 60 * 1000);
+
+  const nextWeek = <ArrivalsSlider
+    sliderKey={'nextWeek'}
+    title={intl.formatMessage(messages.nextWeek)}
+    tvShowUrl="/api/v1/tv/calendar"
+    movieUrl="/api/v1/movie/calendar"
+    timeStart={nextWeekStartDate.toISOString()}
+    timeEnd={nextWeekEndDate.toISOString()}
+    hideWhenEmpty={true}
+  />
+
+  const startMonth = today.getMonth()
+  const endMonth = new Date(new Date(nextWeekEndDate.getTime() + 1 * 24 * 60 * 60 * 1000)).getMonth()
+
+  let monthContent;
+  if (startMonth === endMonth) {
+    // Get later this month content
+    // Get end of 'next week' date + 1 day so there is no overlap of content.
+    const thisMonthEndDate = new Date(today.getFullYear(), today.getMonth(), 0)
+
+    const thisMonthStartDate = new Date(nextWeekEndDate.getTime() + 1 * 24 * 60 * 60 * 1000);
+    monthContent = <ArrivalsSlider
+      sliderKey={'Later this month'}
+      title={intl.formatMessage(messages.laterThisMonth)}
+      tvShowUrl="/api/v1/tv/calendar"
+      movieUrl="/api/v1/movie/calendar"
+      timeStart={thisMonthStartDate.toISOString()}
+      timeEnd={thisMonthEndDate.toISOString()}
+      hideWhenEmpty={true}
+    />
+  } else {
+    const nextMonthStartDate = new Date(today.getFullYear(), today.getMonth() + 1, 1)
+    const nextMonthEndDate = new Date(today.getFullYear(), today.getMonth() + 2, 0)
+
+    monthContent = <ArrivalsSlider
+      sliderKey={'Next month'}
+      title={intl.formatMessage(messages.nextMonth)}
+      tvShowUrl="/api/v1/tv/calendar"
+      movieUrl="/api/v1/movie/calendar"
+      timeStart={nextMonthStartDate.toISOString()}
+      timeEnd={nextMonthEndDate.toISOString()}
+      hideWhenEmpty={true}
+    />
+  }
+
+
 
 
   return (
     <>
       {weekDayElements}
+      {nextWeek}
+      {monthContent}
     </>
   );
 };

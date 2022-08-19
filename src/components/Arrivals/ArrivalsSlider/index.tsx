@@ -217,7 +217,7 @@ const ArrivalsSlider: React.FC<MediaSliderProps> = ({
                         summary={movie?.overview}
                         title={movie?.title || 'Error'}
                         userScore={movie?.voteAverage || 0}
-                        year={release.release_date}
+                        year={release?.release_date || ""}
                         mediaType={currTitleType}
                         inProgress={
                             (movie?.mediaInfo?.downloadStatus ?? []).length > 0
@@ -225,12 +225,11 @@ const ArrivalsSlider: React.FC<MediaSliderProps> = ({
 
                     />
                 );
-
             case 'tv':
                 // Construct a basic description of the new episode
-                let summary = `Season ${tvShow?.nextEpisodeToAir?.seasonNumber} - Episode ${tvShow?.nextEpisodeToAir?.episodeNumber} : '${tvShow?.nextEpisodeToAir?.name}'`;
+                let summary = `Season ${tvShow?.nextEpisodeToAir?.seasonNumber} - Episode ${tvShow?.nextEpisodeToAir?.episodeNumber}: `;
                 if (tvShow?.nextEpisodeToAir?.overview?.length || 0 > 0) {
-                    summary += ` ${tvShow?.nextEpisodeToAir?.overview}`;
+                    summary += `${tvShow?.nextEpisodeToAir?.overview} `;
                 }
                 // Construct an individual status for the episode, since Overseerr's status is for the whole show
                 // not the episode.
