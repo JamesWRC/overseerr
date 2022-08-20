@@ -9,10 +9,12 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { ReactNode, useRef } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
+import { getSettings } from '../../../../server/lib/settings';
 import useClickOutside from '../../../hooks/useClickOutside';
 import { Permission, useUser } from '../../../hooks/useUser';
 import Transition from '../../Transition';
 import VersionStatus from '../VersionStatus';
+
 
 const messages = defineMessages({
   dashboard: 'Discover',
@@ -52,12 +54,6 @@ const SidebarLinks: SidebarLinkProps[] = [
     activeRegExp: /^\/requests/,
   },
   {
-    href: '/arrivals',
-    messagesKey: 'arrivals',
-    svgIcon: <CloudDownloadIcon className="mr-3 h-6 w-6" />,
-    activeRegExp: /^\/arrivals/,
-  },
-  {
     href: '/issues',
     messagesKey: 'issues',
     svgIcon: (
@@ -87,12 +83,24 @@ const SidebarLinks: SidebarLinkProps[] = [
   },
 ];
 
+const arrivalsTab: SidebarLinkProps = {
+  href: '/arrivals',
+  messagesKey: 'arrivals',
+  svgIcon: <CloudDownloadIcon className="mr-3 h-6 w-6" />,
+  activeRegExp: /^\/arrivals/,
+}
+SidebarLinks.splice(2, 0, arrivalsTab);
+
 const Sidebar: React.FC<SidebarProps> = ({ open, setClosed }) => {
   const navRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const intl = useIntl();
   const { hasPermission } = useUser();
   useClickOutside(navRef, () => setClosed());
+  const settings = getSettings();
+
+
+
 
   return (
     <>
