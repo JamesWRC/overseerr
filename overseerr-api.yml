@@ -1793,14 +1793,14 @@ components:
 paths:
   /status:
     get:
-      summary: Get Overseerr version
-      description: Returns the current Overseerr version in a JSON object.
+      summary: Get Overseerr status
+      description: Returns the current Overseerr status in a JSON object.
       security: []
       tags:
         - public
       responses:
         '200':
-          description: Returned version
+          description: Returned status
           content:
             application/json:
               schema:
@@ -1811,6 +1811,12 @@ paths:
                     example: 1.0.0
                   commitTag:
                     type: string
+                  updateAvailable:
+                    type: boolean
+                  commitsBehind:
+                    type: number
+                  restartRequired:
+                    type: boolean
   /status/appdata:
     get:
       summary: Get application data volume status
@@ -3170,8 +3176,8 @@ paths:
           name: guid
           required: true
           schema:
-            type: number
-            example: 1
+            type: string
+            example: '9afef5a7-ec89-4d5f-9397-261e96970b50'
       responses:
         '200':
           description: OK
@@ -4397,6 +4403,46 @@ paths:
                     name:
                       type: string
                       example: Genre Name
+  /discover/watchlist:
+    get:
+      summary: Get the Plex watchlist.
+      tags:
+        - search
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: number
+            example: 1
+            default: 1
+      responses:
+        '200':
+          description: Watchlist data returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  page:
+                    type: number
+                  totalPages:
+                    type: number
+                  totalResults:
+                    type: number
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        tmdbId:
+                          type: number
+                          example: 1
+                        ratingKey:
+                          type: string
+                        type:
+                          type: string
+                        title:
+                          type: string
   /request:
     get:
       summary: Get all requests
@@ -4424,7 +4470,16 @@ paths:
           schema:
             type: string
             nullable: true
-            enum: [all, approved, available, pending, processing, unavailable]
+            enum:
+              [
+                all,
+                approved,
+                available,
+                pending,
+                processing,
+                unavailable,
+                failed,
+              ]
         - in: query
           name: sort
           schema:
@@ -5327,7 +5382,7 @@ paths:
                   $ref: '#/components/schemas/SonarrSeries'
   /regions:
     get:
-      summary: Regions supported by TMDb
+      summary: Regions supported by TMDB
       description: Returns a list of regions in a JSON object.
       tags:
         - tmdb
@@ -5349,7 +5404,7 @@ paths:
                       example: United States of America
   /languages:
     get:
-      summary: Languages supported by TMDb
+      summary: Languages supported by TMDB
       description: Returns a list of languages in a JSON object.
       tags:
         - tmdb
@@ -5414,7 +5469,7 @@ paths:
                 $ref: '#/components/schemas/ProductionCompany'
   /genres/movie:
     get:
-      summary: Get list of official TMDb movie genres
+      summary: Get list of official TMDB movie genres
       description: Returns a list of genres in a JSON array.
       tags:
         - tmdb
@@ -5442,7 +5497,7 @@ paths:
                       example: Family
   /genres/tv:
     get:
-      summary: Get list of official TMDb movie genres
+      summary: Get list of official TMDB movie genres
       description: Returns a list of genres in a JSON array.
       tags:
         - tmdb
