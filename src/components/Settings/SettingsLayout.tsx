@@ -13,6 +13,7 @@ const messages = defineMessages({
   menuLogs: 'Logs',
   menuJobs: 'Jobs & Cache',
   menuAbout: 'About',
+  overseerrPlus: 'OverseerrPlus',
 });
 
 const SettingsLayout: React.FC = ({ children }) => {
@@ -58,6 +59,11 @@ const SettingsLayout: React.FC = ({ children }) => {
       text: intl.formatMessage(messages.menuAbout),
       route: '/settings/about',
       regex: /^\/settings\/about/,
+    },
+    {
+      text: intl.formatMessage(messages.overseerrPlus),
+      route: '/settings/overseerrPlus',
+      regex: /^\/settings\/overseerrPlus/,
     },
   ];
 

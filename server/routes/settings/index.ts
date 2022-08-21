@@ -17,7 +17,7 @@ import { PlexConnection } from '../../interfaces/api/plexInterfaces';
 import {
   LogMessage,
   LogsResultsResponse,
-  SettingsAboutResponse,
+  SettingsAboutResponse
 } from '../../interfaces/api/settingsInterfaces';
 import { scheduledJobs } from '../../job/schedule';
 import cacheManager, { AvailableCacheIds } from '../../lib/cache';
@@ -568,6 +568,21 @@ settingsRoutes.get('/about', async (req, res) => {
     tz: process.env.TZ,
     appDataPath: appDataPath(),
   } as SettingsAboutResponse);
+});
+
+settingsRoutes.get('/overseerrPlus', (_req, res) => {
+  const settings = getSettings();
+
+  res.status(200).json(settings.overseerrPlus);
+});
+
+settingsRoutes.post('/overseerrPlus', async (req, res, next) => {
+  const settings = getSettings();
+
+  Object.assign(settings.overseerrPlus, req.body);
+  settings.save();
+
+  return res.status(200).json(settings.tautulli);
 });
 
 export default settingsRoutes;

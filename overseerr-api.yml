@@ -133,6 +133,15 @@ components:
         defaultPermissions:
           type: number
           example: 32
+    OverseerrPlusSettings:
+      type: object
+      properties:
+        showArrivals:
+          type: boolean
+          example: true
+        showMonthArrival:
+          type: boolean
+          example: true
     PlexLibrary:
       type: object
       properties:
@@ -1832,6 +1841,37 @@ paths:
                   appDataPath:
                     type: string
                     example: /app/config
+  /settings/overseerrPlus:
+    get:
+      summary: Get overseerrPlus settings
+      description: Retrieves all overseerrPlus settings in a JSON object.
+      tags:
+        - settings
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OverseerrPlusSettings'
+    post:
+      summary: Update overseerrPlus settings
+      description: Updates overseerrPlus settings with the provided values.
+      tags:
+        - settings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OverseerrPlusSettings'
+      responses:
+        '200':
+          description: 'Values were sucessfully updated'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OverseerrPlusSettings'
   /settings/main:
     get:
       summary: Get main settings
