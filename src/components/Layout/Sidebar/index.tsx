@@ -1,5 +1,6 @@
 import {
   ClockIcon,
+  CloudDownloadIcon,
   CogIcon,
   ExclamationIcon,
   SparklesIcon,
@@ -10,6 +11,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useRef } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
+import useSWR from 'swr';
+import { OverseerrPlus } from '../../../../server/lib/settings';
 import useClickOutside from '../../../hooks/useClickOutside';
 import { Permission, useUser } from '../../../hooks/useUser';
 import Transition from '../../Transition';
@@ -18,6 +21,7 @@ import VersionStatus from '../VersionStatus';
 const messages = defineMessages({
   dashboard: 'Discover',
   requests: 'Requests',
+  arrivals: 'Arrivals',
   issues: 'Issues',
   users: 'Users',
   settings: 'Settings',
@@ -84,12 +88,32 @@ const SidebarLinks: SidebarLinkProps[] = [
   },
 ];
 
+const arrivalsTab: SidebarLinkProps = {
+  href: '/arrivals',
+  messagesKey: 'arrivals',
+  svgIcon: <CloudDownloadIcon className="mr-3 h-6 w-6" />,
+  activeRegExp: /^\/arrivals/,
+};
+
 const Sidebar = ({ open, setClosed }: SidebarProps) => {
   const navRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const intl = useIntl();
   const { hasPermission } = useUser();
   useClickOutside(navRef, () => setClosed());
+
+  // Get overseerrPlus settings
+  const overseerrPlusSettings = useSWR<OverseerrPlus>(() => {
+    return '/api/v1/settings/overseerrPlus';
+  });
+
+  // Check if ArrivalsTab is enabled and arrivals has been added, if not add it at position.
+  if (
+    overseerrPlusSettings.data?.OSPShowArrivalsTab &&
+    !SidebarLinks.some((sidebar) => sidebar.messagesKey === 'arrivals')
+  ) {
+    SidebarLinks.splice(2, 0, arrivalsTab);
+  }
 
   return (
     <>

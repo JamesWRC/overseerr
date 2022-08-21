@@ -29,10 +29,32 @@ export interface RadarrMovie {
   added: string;
   hasFile: boolean;
 }
-
+export interface MovieCalendarItem extends RadarrMovie {
+  poster_path: string
+  summary: string
+  vote_average: number
+  year: string
+}
 class RadarrAPI extends ServarrBase<{ movieId: number }> {
   constructor({ url, apiKey }: { url: string; apiKey: string }) {
     super({ url, apiKey, cacheName: 'radarr', apiName: 'Radarr' });
+  }
+
+  public async getCalendarItems(startTime: string, endTime: string): Promise<MovieCalendarItem[]> {
+    try {
+      // Will get all items in the calendar from Radarr API
+      const calendarItemsRequest = await this.axios.get<MovieCalendarItem[]>('/calendar', {
+        params: {
+          unmonitored: false, start: startTime, end: endTime
+        },
+      })
+
+      // Return all calendar items from Radarr
+      return calendarItemsRequest.data;
+
+    } catch (e) {
+      throw new Error(`[Radarr] Failed to retrieve calendar data: ${e.message}`);
+    }
   }
 
   public getMovies = async (): Promise<RadarrMovie[]> => {

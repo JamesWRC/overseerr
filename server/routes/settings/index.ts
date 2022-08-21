@@ -17,7 +17,7 @@ import type { PlexConnection } from '../../interfaces/api/plexInterfaces';
 import type {
   LogMessage,
   LogsResultsResponse,
-  SettingsAboutResponse,
+  SettingsAboutResponse
 } from '../../interfaces/api/settingsInterfaces';
 import { scheduledJobs } from '../../job/schedule';
 import type { AvailableCacheIds } from '../../lib/cache';
@@ -29,7 +29,7 @@ import { getSettings } from '../../lib/settings';
 import logger from '../../logger';
 import { isAuthenticated } from '../../middleware/auth';
 import { appDataPath } from '../../utils/appDataVolume';
-import { getAppVersion } from '../../utils/appVersion';
+import { getAppVersion, getPlusAppVersion } from '../../utils/appVersion';
 import notificationRoutes from './notifications';
 import radarrRoutes from './radarr';
 import sonarrRoutes from './sonarr';
@@ -564,11 +564,27 @@ settingsRoutes.get('/about', async (req, res) => {
 
   return res.status(200).json({
     version: getAppVersion(),
+    plusVersion: getPlusAppVersion(),
     totalMediaItems,
     totalRequests,
     tz: process.env.TZ,
     appDataPath: appDataPath(),
   } as SettingsAboutResponse);
+});
+
+settingsRoutes.get('/overseerrPlus', (_req, res) => {
+  const settings = getSettings();
+
+  res.status(200).json(settings.overseerrPlus);
+});
+
+settingsRoutes.post('/overseerrPlus', async (req, res, next) => {
+  const settings = getSettings();
+
+  Object.assign(settings.overseerrPlus, req.body);
+  settings.save();
+
+  return res.status(200).json(settings.tautulli);
 });
 
 export default settingsRoutes;

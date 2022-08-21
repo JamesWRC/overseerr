@@ -6,7 +6,7 @@ import { MediaStatus } from '../../../server/constants/media';
 import type {
   MovieResult,
   PersonResult,
-  TvResult,
+  TvResult
 } from '../../../server/models/Search';
 import useSettings from '../../hooks/useSettings';
 import PersonCard from '../PersonCard';
