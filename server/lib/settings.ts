@@ -243,7 +243,6 @@ interface JobSettings {
 export type JobId =
   | 'plex-recently-added-scan'
   | 'plex-full-scan'
-  | 'plex-watchlist-sync'
   | 'radarr-scan'
   | 'sonarr-scan'
   | 'download-sync'
@@ -405,9 +404,6 @@ class Settings {
         },
         'plex-full-scan': {
           schedule: '0 0 3 * * *',
-        },
-        'plex-watchlist-sync': {
-          schedule: '0 */10 * * * *',
         },
         'radarr-scan': {
           schedule: '0 0 4 * * *',
@@ -610,7 +606,6 @@ export const getSettings = (initialSettings?: AllSettings): Settings => {
   if (!settings) {
     settings = new Settings(initialSettings);
   }
-
 
   return settings;
 };

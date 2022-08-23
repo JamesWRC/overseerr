@@ -182,7 +182,6 @@ tvRoutes.get('/:id', async (req, res, next) => {
   }
 });
 
-
 tvRoutes.get('/:id/season/:seasonNumber', async (req, res, next) => {
   const tmdb = new TheMovieDb();
 

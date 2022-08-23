@@ -1,6 +1,6 @@
 import { ArrowCircleRightIcon } from '@heroicons/react/outline';
 import Link from 'next/link';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import useSWRInfinite from 'swr/infinite';
 import { MediaStatus } from '../../../server/constants/media';
 import type {
@@ -29,13 +29,13 @@ interface MediaSliderProps {
   hideWhenEmpty?: boolean;
 }
 
-const MediaSlider = ({
+const MediaSlider: React.FC<MediaSliderProps> = ({
   title,
   url,
   linkUrl,
   sliderKey,
   hideWhenEmpty = false,
-}: MediaSliderProps) => {
+}) => {
   const settings = useSettings();
   const { data, error, setSize, size } = useSWRInfinite<MixedResult>(
     (pageIndex: number, previousPageData: MixedResult | null) => {

@@ -1,5 +1,5 @@
 import { DocumentTextIcon } from '@heroicons/react/outline';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { defineMessages, FormattedRelativeTime, useIntl } from 'react-intl';
 import ReactMarkdown from 'react-markdown';
 import useSWR from 'swr';
@@ -23,7 +23,7 @@ const messages = defineMessages({
 const REPO_RELEASE_API =
   'https://api.github.com/repos/sct/overseerr/releases?per_page=20';
 
-const OVERSERRPLUS_REPO_RELEASE_API =
+const OVERSEERRPLUS_REPO_RELEASE_API =
   'https://api.github.com/repos/JamesWRC/overseerrPlus/releases?per_page=20';
 
 interface GitHubRelease {
@@ -51,7 +51,11 @@ interface ReleaseProps {
   currentVersion: string;
 }
 
-const Release = ({ currentVersion, release, isLatest }: ReleaseProps) => {
+const Release: React.FC<ReleaseProps> = ({
+  currentVersion,
+  release,
+  isLatest,
+}) => {
   const intl = useIntl();
   const [isModalOpen, setModalOpen] = useState(false);
 
@@ -120,10 +124,10 @@ interface ReleasesProps {
   isOverseerrPlus: boolean;
 }
 
-const Releases = ({ currentVersion, isOverseerrPlus }: ReleasesProps) => {
+const Releases: React.FC<ReleasesProps> = ({ currentVersion, isOverseerrPlus }) => {
   const intl = useIntl();
   const { data, error } = useSWR<GitHubRelease[]>(
-    isOverseerrPlus ? OVERSERRPLUS_REPO_RELEASE_API : REPO_RELEASE_API
+    isOverseerrPlus ? OVERSEERRPLUS_REPO_RELEASE_API : REPO_RELEASE_API
   );
 
   if (!data && !error) {

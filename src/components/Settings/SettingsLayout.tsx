@@ -1,8 +1,7 @@
 import { defineMessages, useIntl } from 'react-intl';
 import globalMessages from '../../i18n/globalMessages';
 import PageTitle from '../Common/PageTitle';
-import type { SettingsRoute } from '../Common/SettingsTabs';
-import SettingsTabs from '../Common/SettingsTabs';
+import SettingsTabs, { SettingsRoute } from '../Common/SettingsTabs';
 
 const messages = defineMessages({
   menuGeneralSettings: 'General',
@@ -16,11 +15,7 @@ const messages = defineMessages({
   overseerrPlus: 'OverseerrPlus',
 });
 
-type SettingsLayoutProps = {
-  children: React.ReactNode;
-};
-
-const SettingsLayout = ({ children }: SettingsLayoutProps) => {
+const SettingsLayout: React.FC = ({ children }) => {
   const intl = useIntl();
 
   const settingsRoutes: SettingsRoute[] = [

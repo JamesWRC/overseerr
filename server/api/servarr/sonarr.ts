@@ -166,7 +166,7 @@ class SonarrAPI extends ServarrBase<{ seriesId: number; episodeId: number }> {
 
   public async getSeriesByTvdbId(id: number): Promise<SonarrSeries> {
     try {
-      const response = await this.axios.get<SonarrSeries[]>('/series', {
+      const response = await this.axios.get<SonarrSeries[]>('/series/lookup', {
         params: {
           term: `tvdb:${id}`,
         },

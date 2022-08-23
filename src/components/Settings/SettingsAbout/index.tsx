@@ -1,9 +1,10 @@
 import { InformationCircleIcon } from '@heroicons/react/solid';
+import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import useSWR from 'swr';
-import type {
+import {
   SettingsAboutResponse,
-  StatusResponse,
+  StatusResponse
 } from '../../../../server/interfaces/api/settingsInterfaces';
 import globalMessages from '../../../i18n/globalMessages';
 import Error from '../../../pages/_error';
@@ -36,7 +37,7 @@ const messages = defineMessages({
     'You are running the <code>develop</code> branch of Overseerr, which is only recommended for those contributing to development or assisting with bleeding-edge testing.',
 });
 
-const SettingsAbout = () => {
+const SettingsAbout: React.FC = () => {
   const intl = useIntl();
   const { data, error } = useSWR<SettingsAboutResponse>(
     '/api/v1/settings/about'
@@ -115,9 +116,9 @@ const SettingsAbout = () => {
           {data.version.startsWith('develop-') && (
             <Alert
               title={intl.formatMessage(messages.runningDevelop, {
-                code: (msg: React.ReactNode) => (
-                  <code className="bg-opacity-50">{msg}</code>
-                ),
+                code: function code(msg) {
+                  return <code className="bg-opacity-50">{msg}</code>;
+                },
               })}
             />
           )}

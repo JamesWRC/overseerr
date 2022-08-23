@@ -5,9 +5,10 @@ import {
   ServerIcon
 } from '@heroicons/react/outline';
 import Link from 'next/link';
+import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import useSWR from 'swr';
-import type { StatusResponse } from '../../../../server/interfaces/api/settingsInterfaces';
+import { StatusResponse } from '../../../../server/interfaces/api/settingsInterfaces';
 
 const messages = defineMessages({
   streamdevelop: 'Overseerr Develop',
@@ -21,7 +22,7 @@ interface VersionStatusProps {
   onClick?: () => void;
 }
 
-const VersionStatus = ({ onClick }: VersionStatusProps) => {
+const VersionStatus: React.FC<VersionStatusProps> = ({ onClick }) => {
   const intl = useIntl();
   const { data } = useSWR<StatusResponse>('/api/v1/status', {
     refreshInterval: 60 * 1000,

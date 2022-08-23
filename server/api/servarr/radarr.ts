@@ -91,7 +91,7 @@ class RadarrAPI extends ServarrBase<{ movieId: number }> {
 
       return response.data[0];
     } catch (e) {
-      logger.error('Error retrieving movie by TMDB ID', {
+      logger.error('Error retrieving movie by TMDb ID', {
         label: 'Radarr API',
         errorMessage: e.message,
         tmdbId: id,

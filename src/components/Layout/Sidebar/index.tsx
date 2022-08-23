@@ -5,11 +5,11 @@ import {
   ExclamationIcon,
   SparklesIcon,
   UsersIcon,
-  XIcon,
+  XIcon
 } from '@heroicons/react/outline';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useRef } from 'react';
+import React, { ReactNode, useRef } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import useSWR from 'swr';
 import { OverseerrPlus } from '../../../../server/lib/settings';
@@ -34,13 +34,12 @@ interface SidebarProps {
 
 interface SidebarLinkProps {
   href: string;
-  svgIcon: React.ReactNode;
+  svgIcon: ReactNode;
   messagesKey: keyof typeof messages;
   activeRegExp: RegExp;
   as?: string;
   requiredPermission?: Permission | Permission[];
   permissionType?: 'and' | 'or';
-  dataTestId?: string;
 }
 
 const SidebarLinks: SidebarLinkProps[] = [
@@ -76,26 +75,17 @@ const SidebarLinks: SidebarLinkProps[] = [
     svgIcon: <UsersIcon className="mr-3 h-6 w-6" />,
     activeRegExp: /^\/users/,
     requiredPermission: Permission.MANAGE_USERS,
-    dataTestId: 'sidebar-menu-users',
   },
   {
     href: '/settings',
     messagesKey: 'settings',
     svgIcon: <CogIcon className="mr-3 h-6 w-6" />,
     activeRegExp: /^\/settings/,
-    requiredPermission: Permission.ADMIN,
-    dataTestId: 'sidebar-menu-settings',
+    requiredPermission: Permission.MANAGE_SETTINGS,
   },
 ];
 
-const arrivalsTab: SidebarLinkProps = {
-  href: '/arrivals',
-  messagesKey: 'arrivals',
-  svgIcon: <CloudDownloadIcon className="mr-3 h-6 w-6" />,
-  activeRegExp: /^\/arrivals/,
-};
-
-const Sidebar = ({ open, setClosed }: SidebarProps) => {
+const Sidebar: React.FC<SidebarProps> = ({ open, setClosed }) => {
   const navRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const intl = useIntl();
@@ -112,6 +102,12 @@ const Sidebar = ({ open, setClosed }: SidebarProps) => {
     overseerrPlusSettings.data?.OSPShowArrivalsTab &&
     !SidebarLinks.some((sidebar) => sidebar.messagesKey === 'arrivals')
   ) {
+    const arrivalsTab: SidebarLinkProps = {
+      href: '/arrivals',
+      messagesKey: 'arrivals',
+      svgIcon: <CloudDownloadIcon className="mr-3 h-6 w-6" />,
+      activeRegExp: /^\/arrivals/,
+    };
     SidebarLinks.splice(2, 0, arrivalsTab);
   }
 
@@ -166,8 +162,8 @@ const Sidebar = ({ open, setClosed }: SidebarProps) => {
                       {SidebarLinks.filter((link) =>
                         link.requiredPermission
                           ? hasPermission(link.requiredPermission, {
-                              type: link.permissionType ?? 'and',
-                            })
+                            type: link.permissionType ?? 'and',
+                          })
                           : true
                       ).map((sidebarLink) => {
                         return (
@@ -186,12 +182,11 @@ const Sidebar = ({ open, setClosed }: SidebarProps) => {
                               role="button"
                               tabIndex={0}
                               className={`flex items-center rounded-md px-2 py-2 text-base font-medium leading-6 text-white transition duration-150 ease-in-out focus:outline-none
-                                ${
-                                  router.pathname.match(
-                                    sidebarLink.activeRegExp
-                                  )
-                                    ? 'bg-gradient-to-br from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500'
-                                    : 'hover:bg-gray-700 focus:bg-gray-700'
+                                ${router.pathname.match(
+                                sidebarLink.activeRegExp
+                              )
+                                  ? 'bg-gradient-to-br from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500'
+                                  : 'hover:bg-gray-700 focus:bg-gray-700'
                                 }
                               `}
                               data-testid={`${sidebarLink.dataTestId}-mobile`}
@@ -236,8 +231,8 @@ const Sidebar = ({ open, setClosed }: SidebarProps) => {
                 {SidebarLinks.filter((link) =>
                   link.requiredPermission
                     ? hasPermission(link.requiredPermission, {
-                        type: link.permissionType ?? 'and',
-                      })
+                      type: link.permissionType ?? 'and',
+                    })
                     : true
                 ).map((sidebarLink) => {
                   return (
@@ -248,13 +243,12 @@ const Sidebar = ({ open, setClosed }: SidebarProps) => {
                     >
                       <a
                         className={`group flex items-center rounded-md px-2 py-2 text-lg font-medium leading-6 text-white transition duration-150 ease-in-out focus:outline-none
-                                ${
-                                  router.pathname.match(
-                                    sidebarLink.activeRegExp
-                                  )
-                                    ? 'bg-gradient-to-br from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500'
-                                    : 'hover:bg-gray-700 focus:bg-gray-700'
-                                }
+                                ${router.pathname.match(
+                          sidebarLink.activeRegExp
+                        )
+                            ? 'bg-gradient-to-br from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500'
+                            : 'hover:bg-gray-700 focus:bg-gray-700'
+                          }
                               `}
                         data-testid={sidebarLink.dataTestId}
                       >

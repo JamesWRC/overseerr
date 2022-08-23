@@ -3,7 +3,7 @@ import GithubAPI from '../api/github';
 import TheMovieDb from '../api/themoviedb';
 import type {
   TmdbMovieResult,
-  TmdbTvResult,
+  TmdbTvResult
 } from '../api/themoviedb/interfaces';
 import type { StatusResponse } from '../interfaces/api/settingsInterfaces';
 import { Permission } from '../lib/permissions';
@@ -13,12 +13,11 @@ import { checkUser, isAuthenticated } from '../middleware/auth';
 import { mapProductionCompany } from '../models/Movie';
 import { mapNetwork } from '../models/Tv';
 import { appDataPath, appDataStatus } from '../utils/appDataVolume';
-import restartFlag from '../utils/restartFlag';
 import {
   getAppVersion,
   getCommitTag,
   getPlusAppVersion,
-  getPlusCommitTag,
+  getPlusCommitTag
 } from '../utils/appVersion';
 import { isPerson } from '../utils/typeHelpers';
 import authRoutes from './auth';
@@ -54,7 +53,7 @@ router.get<unknown, StatusResponse>('/status', async (req, res) => {
 
   if (currentVersion.startsWith('develop-') && commitTag !== 'local') {
     const commits = await githubApi.getOverseerrCommits();
-    logger.info(JSON.stringify(commits));
+
     if (commits.length) {
       const filteredCommits = commits.filter(
         (commit) => !commit.commit.message.includes('[skip ci]')
@@ -112,7 +111,6 @@ router.get<unknown, StatusResponse>('/status', async (req, res) => {
     plusCommitTag: plusCommitTag,
     updateAvailable,
     commitsBehind,
-    restartRequired: restartFlag.isSet(),
     plusUpdateAvailable,
     plusCommitsBehind,
   });
