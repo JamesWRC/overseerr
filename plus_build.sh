@@ -31,7 +31,7 @@ fi
 
 # Determine the git branch for the current build
 if [ "${BUILD_ENV}" == "PROD" ]; then
-    PLUS_GIT_BRANCH="plus/production"
+    PLUS_GIT_BRANCH="plus/main"
 fi
 
 if [ "${BUILD_ENV}" == "STAGING" ]; then
