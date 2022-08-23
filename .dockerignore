@@ -22,7 +22,9 @@ docker-compose.yml
 docs
 LICENSE
 node_modules
+**/node_modules
 public/os_logo_filled.png
 public/preview.jpg
 snap
 stylelint.config.js
+cypress

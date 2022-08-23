@@ -1,0 +1,30 @@
+FROM sctx/overseerr:latest
+
+ARG COMMIT_TAG
+ENV COMMIT_TAG=${COMMIT_TAG}
+
+ARG PLUS_COMMIT_TAG
+ENV PLUS_COMMIT_TAG=${PLUS_COMMIT_TAG}
+
+ARG PLUS_ENV
+ENV PLUS_ENV=${PLUS_ENV}
+# Install git
+RUN apk add --no-cache git
+
+RUN echo "{\"commitTag\": \"${COMMIT_TAG}\"}" > committag.json
+
+
+RUN git clone --depth 1 -b plus/production https://github.com/JamesWRC/overseerrPlus overseerrPlusTemp
+RUN ls 
+RUN pwd
+
+RUN ls overseerrPlusTemp
+
+
+RUN cp -R overseerrPlusTemp/* .
+RUN rm -rf overseerrPlusTemp
+
+
+
+RUN yarn install
+RUN yarn build

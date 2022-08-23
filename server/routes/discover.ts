@@ -1,10 +1,15 @@
 import { Router } from 'express';
 import { sortBy } from 'lodash';
+import PlexTvAPI from '../api/plextv';
 import TheMovieDb from '../api/themoviedb';
 import { MediaType } from '../constants/media';
+import { getRepository } from '../datasource';
 import Media from '../entity/Media';
 import { User } from '../entity/User';
-import { GenreSliderItem } from '../interfaces/api/discoverInterfaces';
+import type {
+  GenreSliderItem,
+  WatchlistItem,
+} from '../interfaces/api/discoverInterfaces';
 import { getSettings } from '../lib/settings';
 import logger from '../logger';
 import { mapProductionCompany } from '../models/Movie';
@@ -19,15 +24,15 @@ export const createTmdbWithRegionLanguage = (user?: User): TheMovieDb => {
     user?.settings?.region === 'all'
       ? ''
       : user?.settings?.region
-      ? user?.settings?.region
-      : settings.main.region;
+        ? user?.settings?.region
+        : settings.main.region;
 
   const originalLanguage =
     user?.settings?.originalLanguage === 'all'
       ? ''
       : user?.settings?.originalLanguage
-      ? user?.settings?.originalLanguage
-      : settings.main.originalLanguage;
+        ? user?.settings?.originalLanguage
+        : settings.main.originalLanguage;
 
   return new TheMovieDb({
     region,
@@ -547,15 +552,15 @@ discoverRoutes.get('/trending', async (req, res, next) => {
       results: data.results.map((result) =>
         isMovie(result)
           ? mapMovieResult(
-              result,
-              media.find(
-                (med) =>
-                  med.tmdbId === result.id && med.mediaType === MediaType.MOVIE
-              )
+            result,
+            media.find(
+              (med) =>
+                med.tmdbId === result.id && med.mediaType === MediaType.MOVIE
             )
+          )
           : isPerson(result)
-          ? mapPersonResult(result)
-          : mapTvResult(
+            ? mapPersonResult(result)
+            : mapTvResult(
               result,
               media.find(
                 (med) =>
@@ -703,5 +708,51 @@ discoverRoutes.get<{ language: string }, GenreSliderItem[]>(
     }
   }
 );
+
+discoverRoutes.get<
+  { page?: number },
+  {
+    page: number;
+    totalPages: number;
+    totalResults: number;
+    results: WatchlistItem[];
+  }
+>('/watchlist', async (req, res) => {
+  const userRepository = getRepository(User);
+  const itemsPerPage = 20;
+  const page = req.params.page ?? 1;
+  const offset = (page - 1) * itemsPerPage;
+
+  const activeUser = await userRepository.findOne({
+    where: { id: req.user?.id },
+    select: ['id', 'plexToken'],
+  });
+
+  if (!activeUser?.plexToken) {
+    // We will just return an empty array if the user has no plex token
+    return res.json({
+      page: 1,
+      totalPages: 1,
+      totalResults: 0,
+      results: [],
+    });
+  }
+
+  const plexTV = new PlexTvAPI(activeUser?.plexToken);
+
+  const watchlist = await plexTV.getWatchlist({ offset });
+
+  return res.json({
+    page,
+    totalPages: Math.ceil(watchlist.size / itemsPerPage),
+    totalResults: watchlist.size,
+    results: watchlist.items.map((item) => ({
+      ratingKey: item.ratingKey,
+      title: item.title,
+      mediaType: item.type === 'show' ? 'tv' : 'movie',
+      tmdbId: item.tmdbId,
+    })),
+  });
+});
 
 export default discoverRoutes;

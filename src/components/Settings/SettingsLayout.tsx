@@ -1,8 +1,8 @@
-import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import globalMessages from '../../i18n/globalMessages';
 import PageTitle from '../Common/PageTitle';
-import SettingsTabs, { SettingsRoute } from '../Common/SettingsTabs';
+import type { SettingsRoute } from '../Common/SettingsTabs';
+import SettingsTabs from '../Common/SettingsTabs';
 
 const messages = defineMessages({
   menuGeneralSettings: 'General',
@@ -13,9 +13,14 @@ const messages = defineMessages({
   menuLogs: 'Logs',
   menuJobs: 'Jobs & Cache',
   menuAbout: 'About',
+  overseerrPlus: 'OverseerrPlus',
 });
 
-const SettingsLayout: React.FC = ({ children }) => {
+type SettingsLayoutProps = {
+  children: React.ReactNode;
+};
+
+const SettingsLayout = ({ children }: SettingsLayoutProps) => {
   const intl = useIntl();
 
   const settingsRoutes: SettingsRoute[] = [
@@ -58,6 +63,11 @@ const SettingsLayout: React.FC = ({ children }) => {
       text: intl.formatMessage(messages.menuAbout),
       route: '/settings/about',
       regex: /^\/settings\/about/,
+    },
+    {
+      text: intl.formatMessage(messages.overseerrPlus),
+      route: '/settings/overseerrPlus',
+      regex: /^\/settings\/overseerrPlus/,
     },
   ];
 

@@ -133,6 +133,15 @@ components:
         defaultPermissions:
           type: number
           example: 32
+    OverseerrPlusSettings:
+      type: object
+      properties:
+        showArrivals:
+          type: boolean
+          example: true
+        showMonthArrival:
+          type: boolean
+          example: true
     PlexLibrary:
       type: object
       properties:
@@ -1793,14 +1802,14 @@ components:
 paths:
   /status:
     get:
-      summary: Get Overseerr version
-      description: Returns the current Overseerr version in a JSON object.
+      summary: Get Overseerr status
+      description: Returns the current Overseerr status in a JSON object.
       security: []
       tags:
         - public
       responses:
         '200':
-          description: Returned version
+          description: Returned status
           content:
             application/json:
               schema:
@@ -1811,6 +1820,12 @@ paths:
                     example: 1.0.0
                   commitTag:
                     type: string
+                  updateAvailable:
+                    type: boolean
+                  commitsBehind:
+                    type: number
+                  restartRequired:
+                    type: boolean
   /status/appdata:
     get:
       summary: Get application data volume status
@@ -1832,6 +1847,37 @@ paths:
                   appDataPath:
                     type: string
                     example: /app/config
+  /settings/overseerrPlus:
+    get:
+      summary: Get overseerrPlus settings
+      description: Retrieves all overseerrPlus settings in a JSON object.
+      tags:
+        - settings
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OverseerrPlusSettings'
+    post:
+      summary: Update overseerrPlus settings
+      description: Updates overseerrPlus settings with the provided values.
+      tags:
+        - settings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OverseerrPlusSettings'
+      responses:
+        '200':
+          description: 'Values were sucessfully updated'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OverseerrPlusSettings'
   /settings/main:
     get:
       summary: Get main settings
@@ -3170,8 +3216,8 @@ paths:
           name: guid
           required: true
           schema:
-            type: number
-            example: 1
+            type: string
+            example: '9afef5a7-ec89-4d5f-9397-261e96970b50'
       responses:
         '200':
           description: OK
@@ -4397,6 +4443,46 @@ paths:
                     name:
                       type: string
                       example: Genre Name
+  /discover/watchlist:
+    get:
+      summary: Get the Plex watchlist.
+      tags:
+        - search
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: number
+            example: 1
+            default: 1
+      responses:
+        '200':
+          description: Watchlist data returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  page:
+                    type: number
+                  totalPages:
+                    type: number
+                  totalResults:
+                    type: number
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        tmdbId:
+                          type: number
+                          example: 1
+                        ratingKey:
+                          type: string
+                        type:
+                          type: string
+                        title:
+                          type: string
   /request:
     get:
       summary: Get all requests
@@ -4424,7 +4510,16 @@ paths:
           schema:
             type: string
             nullable: true
-            enum: [all, approved, available, pending, processing, unavailable]
+            enum:
+              [
+                all,
+                approved,
+                available,
+                pending,
+                processing,
+                unavailable,
+                failed,
+              ]
         - in: query
           name: sort
           schema:
@@ -4647,6 +4742,35 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MediaRequest'
+  /movie/calendar:
+    get:
+      summary: Get upcoming scheduled movies
+      description: Returns Movie objects of scheduled movies.
+      tags:
+        - movies
+      parameters:
+        - in: query
+          name: startTime
+          schema:
+            type: string
+            example: '2022-07-23T14:00:00.000Z'
+        - in: query
+          name: endTime
+          schema:
+            type: string
+            example: '2022-08-13T13:59:59.999Z'
+        - in: query
+          name: language
+          schema:
+            type: string
+            example: en
+      responses:
+        '200':
+          description: Movie details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MovieDetails'
   /movie/{movieId}:
     get:
       summary: Get movie details
@@ -4804,6 +4928,35 @@ paths:
                   audienceRating:
                     type: string
                     enum: ['Spilled', 'Upright']
+  /tv/calendar:
+    get:
+      summary: Get upcoming scheduled shows
+      description: Returns TV objects of scheduled shows.
+      tags:
+        - tv
+      parameters:
+        - in: query
+          name: startTime
+          schema:
+            type: string
+            example: '2022-07-23T14:00:00.000Z'
+        - in: query
+          name: endTime
+          schema:
+            type: string
+            example: '2022-08-13T13:59:59.999Z'
+        - in: query
+          name: language
+          schema:
+            type: string
+            example: en
+      responses:
+        '200':
+          description: TV details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TvDetails'
   /tv/{tvId}:
     get:
       summary: Get TV details
@@ -5327,7 +5480,7 @@ paths:
                   $ref: '#/components/schemas/SonarrSeries'
   /regions:
     get:
-      summary: Regions supported by TMDb
+      summary: Regions supported by TMDB
       description: Returns a list of regions in a JSON object.
       tags:
         - tmdb
@@ -5349,7 +5502,7 @@ paths:
                       example: United States of America
   /languages:
     get:
-      summary: Languages supported by TMDb
+      summary: Languages supported by TMDB
       description: Returns a list of languages in a JSON object.
       tags:
         - tmdb
@@ -5414,7 +5567,7 @@ paths:
                 $ref: '#/components/schemas/ProductionCompany'
   /genres/movie:
     get:
-      summary: Get list of official TMDb movie genres
+      summary: Get list of official TMDB movie genres
       description: Returns a list of genres in a JSON array.
       tags:
         - tmdb
@@ -5442,7 +5595,7 @@ paths:
                       example: Family
   /genres/tv:
     get:
-      summary: Get list of official TMDb movie genres
+      summary: Get list of official TMDB movie genres
       description: Returns a list of genres in a JSON array.
       tags:
         - tmdb
@@ -5562,6 +5715,36 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Issue'
+
+  /issue/count:
+    get:
+      summary: Gets issue counts
+      description: |
+        Returns the number of open and closed issues, as well as the number of issues of each type.
+      tags:
+        - issue
+      responses:
+        '200':
+          description: Issue counts returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: number
+                  video:
+                    type: number
+                  audio:
+                    type: number
+                  subtitles:
+                    type: number
+                  others:
+                    type: number
+                  open:
+                    type: number
+                  closed:
+                    type: number
   /issue/{issueId}:
     get:
       summary: Get issue

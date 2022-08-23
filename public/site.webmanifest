@@ -66,6 +66,17 @@
       ]
     },
     {
+      "name": "Arrivals",
+      "url": "./arrivals",
+      "icons": [
+        {
+          "src": "./user-icon-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
       "name": "Settings",
       "url": "./profile/settings",
       "icons": [

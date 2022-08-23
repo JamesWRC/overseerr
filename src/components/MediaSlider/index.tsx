@@ -1,12 +1,12 @@
 import { ArrowCircleRightIcon } from '@heroicons/react/outline';
 import Link from 'next/link';
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import useSWRInfinite from 'swr/infinite';
 import { MediaStatus } from '../../../server/constants/media';
 import type {
   MovieResult,
   PersonResult,
-  TvResult,
+  TvResult
 } from '../../../server/models/Search';
 import useSettings from '../../hooks/useSettings';
 import PersonCard from '../PersonCard';
@@ -29,13 +29,13 @@ interface MediaSliderProps {
   hideWhenEmpty?: boolean;
 }
 
-const MediaSlider: React.FC<MediaSliderProps> = ({
+const MediaSlider = ({
   title,
   url,
   linkUrl,
   sliderKey,
   hideWhenEmpty = false,
-}) => {
+}: MediaSliderProps) => {
   const settings = useSettings();
   const { data, error, setSize, size } = useSWRInfinite<MixedResult>(
     (pageIndex: number, previousPageData: MixedResult | null) => {

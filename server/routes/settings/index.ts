@@ -5,29 +5,31 @@ import { merge, omit, set, sortBy } from 'lodash';
 import { rescheduleJob } from 'node-schedule';
 import path from 'path';
 import semver from 'semver';
-import { getRepository } from 'typeorm';
 import { URL } from 'url';
 import PlexAPI from '../../api/plexapi';
 import PlexTvAPI from '../../api/plextv';
 import TautulliAPI from '../../api/tautulli';
+import { getRepository } from '../../datasource';
 import Media from '../../entity/Media';
 import { MediaRequest } from '../../entity/MediaRequest';
 import { User } from '../../entity/User';
-import { PlexConnection } from '../../interfaces/api/plexInterfaces';
-import {
+import type { PlexConnection } from '../../interfaces/api/plexInterfaces';
+import type {
   LogMessage,
   LogsResultsResponse,
-  SettingsAboutResponse,
+  SettingsAboutResponse
 } from '../../interfaces/api/settingsInterfaces';
 import { scheduledJobs } from '../../job/schedule';
-import cacheManager, { AvailableCacheIds } from '../../lib/cache';
+import type { AvailableCacheIds } from '../../lib/cache';
+import cacheManager from '../../lib/cache';
 import { Permission } from '../../lib/permissions';
 import { plexFullScanner } from '../../lib/scanners/plex';
-import { getSettings, MainSettings } from '../../lib/settings';
+import type { MainSettings } from '../../lib/settings';
+import { getSettings } from '../../lib/settings';
 import logger from '../../logger';
 import { isAuthenticated } from '../../middleware/auth';
 import { appDataPath } from '../../utils/appDataVolume';
-import { getAppVersion } from '../../utils/appVersion';
+import { getAppVersion, getPlusAppVersion } from '../../utils/appVersion';
 import notificationRoutes from './notifications';
 import radarrRoutes from './radarr';
 import sonarrRoutes from './sonarr';
@@ -91,8 +93,8 @@ settingsRoutes.post('/plex', async (req, res, next) => {
   const settings = getSettings();
   try {
     const admin = await userRepository.findOneOrFail({
-      select: ['id', 'plexToken'],
-      order: { id: 'ASC' },
+      select: { id: true, plexToken: true },
+      where: { id: 1 },
     });
 
     Object.assign(settings.plex, req.body);
@@ -127,8 +129,8 @@ settingsRoutes.get('/plex/devices/servers', async (req, res, next) => {
   const userRepository = getRepository(User);
   try {
     const admin = await userRepository.findOneOrFail({
-      select: ['id', 'plexToken'],
-      order: { id: 'ASC' },
+      select: { id: true, plexToken: true },
+      where: { id: 1 },
     });
     const plexTvClient = admin.plexToken
       ? new PlexTvAPI(admin.plexToken)
@@ -206,8 +208,8 @@ settingsRoutes.get('/plex/library', async (req, res) => {
   if (req.query.sync) {
     const userRepository = getRepository(User);
     const admin = await userRepository.findOneOrFail({
-      select: ['id', 'plexToken'],
-      order: { id: 'ASC' },
+      select: { id: true, plexToken: true },
+      where: { id: 1 },
     });
     const plexapi = new PlexAPI({ plexToken: admin.plexToken });
 
@@ -282,8 +284,8 @@ settingsRoutes.get(
 
     try {
       const admin = await userRepository.findOneOrFail({
-        select: ['id', 'plexToken'],
-        order: { id: 'ASC' },
+        select: { id: true, plexToken: true },
+        where: { id: 1 },
       });
       const plexApi = new PlexTvAPI(admin.plexToken ?? '');
       const plexUsers = (await plexApi.getUsers()).MediaContainer.User.map(
@@ -562,11 +564,27 @@ settingsRoutes.get('/about', async (req, res) => {
 
   return res.status(200).json({
     version: getAppVersion(),
+    plusVersion: getPlusAppVersion(),
     totalMediaItems,
     totalRequests,
     tz: process.env.TZ,
     appDataPath: appDataPath(),
   } as SettingsAboutResponse);
+});
+
+settingsRoutes.get('/overseerrPlus', (_req, res) => {
+  const settings = getSettings();
+
+  res.status(200).json(settings.overseerrPlus);
+});
+
+settingsRoutes.post('/overseerrPlus', async (req, res, next) => {
+  const settings = getSettings();
+
+  Object.assign(settings.overseerrPlus, req.body);
+  settings.save();
+
+  return res.status(200).json(settings.tautulli);
 });
 
 export default settingsRoutes;

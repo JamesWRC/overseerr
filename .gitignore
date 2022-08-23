@@ -53,3 +53,22 @@ config/db/db.sqlite3-journal
 
 # VS Code
 .vscode/launch.json
+
+# Cypress
+cypress.env.json
+cypress/videos
+cypress/screenshots
+
+# ESLint
+.eslintcache
+
+# TS Build Info
+tsconfig.tsbuildinfo
+
+# OverseerrPlus prod config test
+prodConfig
+*.env
+committag.json
+
+# Other OverseerrPlus files
+config/*

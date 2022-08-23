@@ -1,8 +1,11 @@
 import { Router } from 'express';
 import GithubAPI from '../api/github';
 import TheMovieDb from '../api/themoviedb';
-import { TmdbMovieResult, TmdbTvResult } from '../api/themoviedb/interfaces';
-import { StatusResponse } from '../interfaces/api/settingsInterfaces';
+import type {
+  TmdbMovieResult,
+  TmdbTvResult,
+} from '../api/themoviedb/interfaces';
+import type { StatusResponse } from '../interfaces/api/settingsInterfaces';
 import { Permission } from '../lib/permissions';
 import { getSettings } from '../lib/settings';
 import logger from '../logger';
@@ -10,7 +13,13 @@ import { checkUser, isAuthenticated } from '../middleware/auth';
 import { mapProductionCompany } from '../models/Movie';
 import { mapNetwork } from '../models/Tv';
 import { appDataPath, appDataStatus } from '../utils/appDataVolume';
-import { getAppVersion, getCommitTag } from '../utils/appVersion';
+import restartFlag from '../utils/restartFlag';
+import {
+  getAppVersion,
+  getCommitTag,
+  getPlusAppVersion,
+  getPlusCommitTag,
+} from '../utils/appVersion';
 import { isPerson } from '../utils/typeHelpers';
 import authRoutes from './auth';
 import collectionRoutes from './collection';
@@ -36,19 +45,25 @@ router.get<unknown, StatusResponse>('/status', async (req, res) => {
 
   const currentVersion = getAppVersion();
   const commitTag = getCommitTag();
-  let updateAvailable = false;
+  const plusCurrentVersion = getPlusAppVersion();
+  const plusCommitTag = getPlusCommitTag();
+  const updateAvailable = false;
+  let plusUpdateAvailable = false;
   let commitsBehind = 0;
+  let plusCommitsBehind = 0;
 
   if (currentVersion.startsWith('develop-') && commitTag !== 'local') {
     const commits = await githubApi.getOverseerrCommits();
-
+    logger.info(JSON.stringify(commits));
     if (commits.length) {
       const filteredCommits = commits.filter(
         (commit) => !commit.commit.message.includes('[skip ci]')
       );
-      if (filteredCommits[0].sha !== commitTag) {
-        updateAvailable = true;
-      }
+
+      // Commenting out this code since there wont be an update available
+      // if (filteredCommits[0].sha !== commitTag) {
+      //   updateAvailable = true;
+      // }
 
       const commitIndex = filteredCommits.findIndex(
         (commit) => commit.sha === commitTag
@@ -65,16 +80,41 @@ router.get<unknown, StatusResponse>('/status', async (req, res) => {
       const latestVersion = releases[0];
 
       if (!latestVersion.name.includes(currentVersion)) {
-        updateAvailable = true;
+        // updateAvailable = true;
       }
+    }
+  }
+
+  // Get OverseerrPlus release data
+  const releases = await githubApi.getOverseerrPlusReleases();
+
+  if (releases.length) {
+    const filteredReleases = releases.filter(
+      (release) => !release.prerelease === true
+    );
+
+    if (releases[0].tag_name !== plusCommitTag) {
+      plusUpdateAvailable = true;
+    }
+    const releaseIndex = filteredReleases.findIndex(
+      (release) => release.tag_name === plusCommitTag
+    );
+
+    if (plusUpdateAvailable) {
+      plusCommitsBehind = releaseIndex;
     }
   }
 
   return res.status(200).json({
     version: getAppVersion(),
     commitTag: getCommitTag(),
+    plusVersion: plusCurrentVersion,
+    plusCommitTag: plusCommitTag,
     updateAvailable,
     commitsBehind,
+    restartRequired: restartFlag.isSet(),
+    plusUpdateAvailable,
+    plusCommitsBehind,
   });
 });
 
@@ -97,11 +137,7 @@ router.get('/settings/public', async (req, res) => {
     return res.status(200).json(settings.fullPublicSettings);
   }
 });
-router.use(
-  '/settings',
-  isAuthenticated(Permission.MANAGE_SETTINGS),
-  settingsRoutes
-);
+router.use('/settings', isAuthenticated(Permission.ADMIN), settingsRoutes);
 router.use('/search', isAuthenticated(), searchRoutes);
 router.use('/discover', isAuthenticated(), discoverRoutes);
 router.use('/request', isAuthenticated(), requestRoutes);

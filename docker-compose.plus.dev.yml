@@ -1,0 +1,18 @@
+# Used for developing overseerrPlus
+version: '3'
+services:
+  overseerrdd:
+    build:
+      context: .
+      dockerfile: Dockerfile.plus.local
+    env_file:
+      - .dev.plus.env
+    image: overseerrplus:dev
+    container_name: overseerrplus
+    ports:
+      - 5055:5055
+    volumes:
+      - .:/app:rw
+      - /app/node_modules
+      - /app/.next
+      - ./config:/app/config

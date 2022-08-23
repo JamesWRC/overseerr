@@ -1,5 +1,6 @@
 import {
   ClockIcon,
+  CloudDownloadIcon,
   CogIcon,
   ExclamationIcon,
   SparklesIcon,
@@ -8,8 +9,10 @@ import {
 } from '@heroicons/react/outline';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import React, { ReactNode, useRef } from 'react';
+import { useRef } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
+import useSWR from 'swr';
+import { OverseerrPlus } from '../../../../server/lib/settings';
 import useClickOutside from '../../../hooks/useClickOutside';
 import { Permission, useUser } from '../../../hooks/useUser';
 import Transition from '../../Transition';
@@ -18,6 +21,7 @@ import VersionStatus from '../VersionStatus';
 const messages = defineMessages({
   dashboard: 'Discover',
   requests: 'Requests',
+  arrivals: 'Arrivals',
   issues: 'Issues',
   users: 'Users',
   settings: 'Settings',
@@ -30,12 +34,13 @@ interface SidebarProps {
 
 interface SidebarLinkProps {
   href: string;
-  svgIcon: ReactNode;
+  svgIcon: React.ReactNode;
   messagesKey: keyof typeof messages;
   activeRegExp: RegExp;
   as?: string;
   requiredPermission?: Permission | Permission[];
   permissionType?: 'and' | 'or';
+  dataTestId?: string;
 }
 
 const SidebarLinks: SidebarLinkProps[] = [
@@ -71,22 +76,44 @@ const SidebarLinks: SidebarLinkProps[] = [
     svgIcon: <UsersIcon className="mr-3 h-6 w-6" />,
     activeRegExp: /^\/users/,
     requiredPermission: Permission.MANAGE_USERS,
+    dataTestId: 'sidebar-menu-users',
   },
   {
     href: '/settings',
     messagesKey: 'settings',
     svgIcon: <CogIcon className="mr-3 h-6 w-6" />,
     activeRegExp: /^\/settings/,
-    requiredPermission: Permission.MANAGE_SETTINGS,
+    requiredPermission: Permission.ADMIN,
+    dataTestId: 'sidebar-menu-settings',
   },
 ];
 
-const Sidebar: React.FC<SidebarProps> = ({ open, setClosed }) => {
+const arrivalsTab: SidebarLinkProps = {
+  href: '/arrivals',
+  messagesKey: 'arrivals',
+  svgIcon: <CloudDownloadIcon className="mr-3 h-6 w-6" />,
+  activeRegExp: /^\/arrivals/,
+};
+
+const Sidebar = ({ open, setClosed }: SidebarProps) => {
   const navRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const intl = useIntl();
   const { hasPermission } = useUser();
   useClickOutside(navRef, () => setClosed());
+
+  // Get overseerrPlus settings
+  const overseerrPlusSettings = useSWR<OverseerrPlus>(() => {
+    return '/api/v1/settings/overseerrPlus';
+  });
+
+  // Check if ArrivalsTab is enabled and arrivals has been added, if not add it at position.
+  if (
+    overseerrPlusSettings.data?.OSPShowArrivalsTab &&
+    !SidebarLinks.some((sidebar) => sidebar.messagesKey === 'arrivals')
+  ) {
+    SidebarLinks.splice(2, 0, arrivalsTab);
+  }
 
   return (
     <>
@@ -167,6 +194,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, setClosed }) => {
                                     : 'hover:bg-gray-700 focus:bg-gray-700'
                                 }
                               `}
+                              data-testid={`${sidebarLink.dataTestId}-mobile`}
                             >
                               {sidebarLink.svgIcon}
                               {intl.formatMessage(
@@ -228,6 +256,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, setClosed }) => {
                                     : 'hover:bg-gray-700 focus:bg-gray-700'
                                 }
                               `}
+                        data-testid={sidebarLink.dataTestId}
                       >
                         {sidebarLink.svgIcon}
                         {intl.formatMessage(messages[sidebarLink.messagesKey])}
