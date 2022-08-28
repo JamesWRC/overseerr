@@ -26,11 +26,13 @@ jobs:
       - uses: actions/checkout@v3
       - name: Run a one-line script
         run: echo Hello, world!
+      - name: 'old var'
+        run: echo CURR_PLUS_COMMIT_TAG=$(curl -s "https://api.github.com/repos/JamesWRC/overseerrPlus/releases" | python3 -c 'import json,sys;releases=json.load(sys.stdin); print([rel.get("tag_name") for rel in releases if rel.get("target_commitish") == "plus/main" ][0]) ') >> $GITHUB_ENV
       - name: Bump release version
         id: bump_version
         uses: christian-draeger/increment-semantic-version@1.0.2
         with:
-          current-version: $(echo curl -s "https://api.github.com/repos/JamesWRC/overseerrPlus/releases" | python3 -c 'import json,sys;releases=json.load(sys.stdin); print([rel.get("tag_name") for rel in releases if rel.get("target_commitish") == "plus/main" ][0])')
+          current-version: ${{ env.CURR_PLUS_COMMIT_TAG }}
           version-fragment: 'feature'
       - name: Do something with your bumped release version
         run: echo ${{ steps.bump_version.outputs.next-version }}
