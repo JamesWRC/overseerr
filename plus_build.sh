@@ -39,25 +39,35 @@ if [ "${BUILD_ENV}" == "STAGING" ]; then
 fi
 
 # Set the build tag and get latest tags from respective repos
-if [ "${BUILD_ENV}" == "PROD" ] || [ "${BUILD_ENV}" == "STAGING" ]; then
+if [ "${BUILD_ENV}" == "PROD" ]; then
 
     # Set build tag
     PLUS_DOCKER_BUILD_TAG="latest"
 
-    # Get lastest commit SHA from overseerr releases.
-    latestOverseerrReleaseTag=$(curl -s 'https://api.github.com/repos/sct/overseerr/tags' | python3 -c 'import json,sys;obj=json.load(sys.stdin);print(obj[0]["name"])')
+fi
 
-    # Get latest release tag from overseerrPlus releases.
-    latestOverseerrPlusReleaseTag=$(curl -s "https://api.github.com/repos/JamesWRC/overseerrPlus/releases" | python3 -c 'import json,sys;releases=json.load(sys.stdin); print([rel.get("tag_name") for rel in releases if rel.get("target_commitish") == "plus/production" ][0]) ')
+# Set the build tag and get latest tags from respective repos
+if [ "${BUILD_ENV}" == "STAGING" ]; then
 
-else
-
-    # Hardcode versions to save API calls when building for prod
-    latestOverseerrReleaseTag="v1.29.1"
-
-    latestOverseerrPlusReleaseTag="v0.0.1"
+    # Set build tag
+    PLUS_DOCKER_BUILD_TAG="beta"
 
 fi
+
+# Set the build tag and get latest tags from respective repos
+if [ "${BUILD_ENV}" == "DEV" ]; then
+
+    # Set build tag
+    PLUS_DOCKER_BUILD_TAG="dev"
+
+fi
+
+# Get lastest commit SHA from overseerr releases.
+latestOverseerrReleaseTag=$(curl -s 'https://api.github.com/repos/sct/overseerr/tags' | python3 -c 'import json,sys;obj=json.load(sys.stdin);print(obj[0]["name"])')
+
+# Get latest release tag from overseerrPlus releases.
+latestOverseerrPlusReleaseTag=$(curl -s "https://api.github.com/repos/JamesWRC/overseerrPlus/releases" | python3 -c 'import json,sys;releases=json.load(sys.stdin); print([rel.get("tag_name") for rel in releases if rel.get("target_commitish") == "plus/main" ][0]) ')
+
 
 # Print the latest releases for Overseerr and OverseerrPlus from git.
 echo
