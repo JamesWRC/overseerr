@@ -43,6 +43,8 @@ jobs:
         run: |
           bash ./plus_build.sh ${{env.BUILD_ENV}}
   buildAndDeploy:
+    # Wait for build to run before deploying
+    needs: build
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
     # Steps represent a sequence of tasks that will be executed as part of the job
