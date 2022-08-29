@@ -8,7 +8,7 @@ on:
   push:
     branches: [ "plus/main", "plus/staging", "plus/develop" ]
   pull_request:
-    branches: [ "plus/develop" ]
+    branches: [ "plus/main" ]
 
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
@@ -43,6 +43,8 @@ jobs:
         run: |
           bash ./plus_build.sh ${{env.BUILD_ENV}}
   buildAndDeploy:
+    # Wait for build to run before deploying
+    needs: build
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
     # Steps represent a sequence of tasks that will be executed as part of the job
@@ -65,7 +67,17 @@ jobs:
           echo PLUS_COMMIT_TAG=${{ steps.bump_version.outputs.next-version }} >> $GITHUB_ENV
           echo PLUS_GIT_BRANCH=${{ github.ref_name }} >> $GITHUB_ENV
           echo BUILD_ENV=$(if [ ${{github.ref_name}} = "plus/main" ]; then echo "PROD"; elif [ ${{ github.ref_name }} = "plus/staging" ]; then echo "STAGING"; else echo "DEV"; fi) >> $GITHUB_ENV
-      # Runs a set of commands using the runners shell
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Available platforms
+        run: echo ${{ steps.buildx.outputs.platforms }}
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.OVERSEERRPLUS_DOCKER_USERNAME }}
+          password: ${{ secrets.OVERSEERRPLUS_DOCKER_TOKEN }}
       - name: Run a multi-line script
         run: |
           bash ./plus_massbuild.sh ${{env.BUILD_ENV}}
