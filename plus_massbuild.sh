@@ -39,4 +39,6 @@ echo
 echo "Building for platforms: ${BUILD_PLATFORMS}."
 echo "  BUILD ARGS -> \n\t ${BUILD_ARGS} "
 echo
-docker buildx build --push --platform $BUILD_PLATFORMS $BUILD_ARGS -f "Dockerfile" -t jameswrc/overseerrplus:$DOCKER_TAG "."
+
+dockerlabel="jameswrc/overseerrplus:$DOCKER_TAG"
+docker buildx build --push --platform $BUILD_PLATFORMS $BUILD_ARGS -f "Dockerfile" -t $dockerlabel "."
