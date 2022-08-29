@@ -132,7 +132,7 @@ bash -c "${buildCMD}"
 
 # Stop and run image if specified 
 buildCMD="docker-compose -f 'docker-compose.plus.${ENV_FILE_NAME}.yml' up ${RUN_ON_BUILD_ARGS}"
-if [ "${BUILD_ENV}" == "DEV" ] || [ "${RUN_ON_BUILD}" == "run" ]; then
+if [ "${RUN_ON_BUILD}" == "run" ]; then
     echo "${buildCMD}"
     sleep 3
     bash -c "${buildCMD}"
