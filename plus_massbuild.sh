@@ -25,7 +25,6 @@ if [ "${BUILD_ENV}" == "DEV" ]; then
 
 fi
 
-
 COMMIT_TAG=$(curl -s 'https://api.github.com/repos/sct/overseerr/tags' | python3 -c 'import json,sys;obj=json.load(sys.stdin);print(obj[0]["name"])')
 BUILD_ARGS="--build-arg PLUS_DOCKER_BUILD_TAG='${PLUS_DOCKER_BUILD_TAG}' \
 --build-arg COMMIT_TAG='${COMMIT_TAG}' \
@@ -40,5 +39,6 @@ echo "Building for platforms: ${BUILD_PLATFORMS}."
 echo "  BUILD ARGS -> \n\t ${BUILD_ARGS} "
 echo
 
-dockerlabel="jameswrc/overseerrplus:$DOCKER_TAG"
-docker buildx build --push --platform $BUILD_PLATFORMS $BUILD_ARGS -f "Dockerfile" -t $dockerlabel "."
+cmd="docker buildx build --push --platform $BUILD_PLATFORMS $BUILD_ARGS -f Dockerfile -t jameswrc/overseerrplus:$PLUS_DOCKER_BUILD_TAG ."
+
+eval $cmd
