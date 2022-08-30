@@ -21,6 +21,10 @@ COPY . ./
 ARG COMMIT_TAG
 ENV COMMIT_TAG=${COMMIT_TAG}
 
+# OverseerrPlus commit tags
+ARG PLUS_COMMIT_TAG
+ENV PLUS_COMMIT_TAG=${PLUS_COMMIT_TAG}
+
 RUN yarn build
 
 # remove development dependencies
@@ -30,6 +34,7 @@ RUN rm -rf src server .next/cache
 
 RUN touch config/DOCKER
 
+# Added overseerrPlus git tags to file
 RUN echo "{\"commitTag\": \"${COMMIT_TAG}\", \"plusCommitTag\": \"${PLUS_COMMIT_TAG}\"}" > committag.json
 
 
