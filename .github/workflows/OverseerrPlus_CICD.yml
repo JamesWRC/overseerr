@@ -30,16 +30,16 @@ jobs:
         with:
           current-version: ${{ env.CURR_PLUS_COMMIT_TAG }}
           version-fragment: 'feature'
-      - name: Do something with your bumped release version
+      - name: New version
         run: echo ${{ steps.bump_version.outputs.next-version }}
-      - name: Set env
+      - name: Set env vars
         run: |
           echo COMMIT_TAG=$(curl -s 'https://api.github.com/repos/sct/overseerr/tags' | python3 -c 'import json,sys;obj=json.load(sys.stdin);print(obj[0]["name"])') >> $GITHUB_ENV
           echo PLUS_COMMIT_TAG=${{ steps.bump_version.outputs.next-version }} >> $GITHUB_ENV
           echo PLUS_GIT_BRANCH=${{ github.ref_name }} >> $GITHUB_ENV
           echo BUILD_ENV=$(if [ ${{github.ref_name}} = "plus/main" ]; then echo "PROD"; elif [ ${{ github.ref_name }} = "plus/staging" ]; then echo "STAGING"; else echo "DEV"; fi) >> $GITHUB_ENV
       # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
+      - name: Build container to test build scripts
         run: |
           bash ./plus_build.sh ${{env.BUILD_ENV}}
   buildAndDeploy:
@@ -59,9 +59,9 @@ jobs:
         with:
           current-version: ${{ env.CURR_PLUS_COMMIT_TAG }}
           version-fragment: 'feature'
-      - name: Do something with your bumped release version
+      - name: New version
         run: echo ${{ steps.bump_version.outputs.next-version }}
-      - name: Set env
+      - name: Set env vars
         run: |
           echo COMMIT_TAG=$(curl -s 'https://api.github.com/repos/sct/overseerr/tags' | python3 -c 'import json,sys;obj=json.load(sys.stdin);print(obj[0]["name"])') >> $GITHUB_ENV
           echo PLUS_COMMIT_TAG=${{ steps.bump_version.outputs.next-version }} >> $GITHUB_ENV
@@ -78,6 +78,6 @@ jobs:
         with:
           username: ${{ secrets.OVERSEERRPLUS_DOCKER_USERNAME }}
           password: ${{ secrets.OVERSEERRPLUS_DOCKER_TOKEN }}
-      - name: Run a multi-line script
+      - name: Build container for platforms
         run: |
           bash ./plus_massbuild.sh ${{env.BUILD_ENV}}
