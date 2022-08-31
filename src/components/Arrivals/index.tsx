@@ -143,9 +143,10 @@ const Arrivals: React.FC = () => {
     // Get end of 'next week' date + 1 day so there is no overlap of content.
     const thisMonthEndDate = new Date(today.getFullYear(), today.getMonth(), 0);
 
+    // const thisMonthStartDate = nextWeekEndDate;
     const thisMonthStartDate = new Date(
-      nextWeekEndDate.getTime() + 1 * 24 * 60 * 60 * 1000
-    );
+      new Date(nextWeekEndDate.getTime() + 1 * 24 * 60 * 60 * 1000)
+    )
     monthContent = (
       <ArrivalsSlider
         sliderKey={'Later this month'}
@@ -159,13 +160,11 @@ const Arrivals: React.FC = () => {
     );
   } else {
     const nextMonthStartDate = new Date(
-      today.getFullYear(),
-      today.getMonth() + 1,
-      1
-    );
+      new Date(nextWeekEndDate.getTime() + 1 * 24 * 60 * 60 * 1000)
+    )
     const nextMonthEndDate = new Date(
-      today.getFullYear(),
-      today.getMonth() + 2,
+      nextWeekEndDate.getFullYear(),
+      nextWeekEndDate.getMonth() + 1,
       0
     );
 

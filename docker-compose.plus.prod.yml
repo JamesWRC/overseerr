@@ -4,7 +4,7 @@ services:
   overseerr:
     build:
       context: .
-      dockerfile: Dockerfile.plus.prod
+      dockerfile: Dockerfile
     container_name: overseerrPlus
     image: overseerrplus:latest
     env_file:
