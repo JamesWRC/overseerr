@@ -145,10 +145,7 @@ const ArrivalsSlider: React.FC<MediaSliderProps> = ({
         />
     }
 
-    // Hide if there is nothing scheduled during the time frame.
-    if (hideWhenEmpty && (calendarItems ?? []).length === 0) {
-        return null;
-    }
+
 
 
 
@@ -202,6 +199,10 @@ const ArrivalsSlider: React.FC<MediaSliderProps> = ({
 
                 // Find the releases, prefer 4 over other types
                 let release = filteredReleases.find(rel => rel.type === 4)
+                // If a digital release is found and its date is less than the start 
+                if (release && new Date(release?.release_date).getTime() < new Date(timeStart).getTime()) {
+                    return <></>
+                }
                 if (!release) {
                     release = filteredReleases.find(rel => rel.type === 3)
                     if (!release) {
@@ -265,6 +266,15 @@ const ArrivalsSlider: React.FC<MediaSliderProps> = ({
         }
     });
 
+    const filteredMedia = CalendarMedia.filter(function (value) {
+        return value?.key !== null;
+    });
+
+    // Hide if there is nothing scheduled during the time frame.
+    if (hideWhenEmpty && (filteredMedia ?? []).length === 0) {
+        return null;
+    }
+
     return (
         <>
             <div className="slider-header">
@@ -284,7 +294,7 @@ const ArrivalsSlider: React.FC<MediaSliderProps> = ({
                 sliderKey={sliderKey}
                 isLoading={CalendarMedia.length < 1}
                 isEmpty={CalendarMedia.length === 0}
-                items={CalendarMedia}
+                items={filteredMedia}
                 emptyMessage={'Nothing Scheduled.'}
             />
         </>
