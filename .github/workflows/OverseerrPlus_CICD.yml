@@ -52,7 +52,7 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
       - name: 'CURR_PLUS_COMMIT_TAG'
-        run: echo CURR_PLUS_COMMIT_TAG=$(curl -s "https://api.github.com/repos/JamesWRC/overseerrPlus/releases" | python3 -c 'import json,sys;releases=json.load(sys.stdin); print([rel.get("tag_name") for rel in releases if rel.get("target_commitish") == "plus/main" ][0].upper().replace("V","")) ') >> $GITHUB_ENV
+        run: echo CURR_PLUS_COMMIT_TAG=$(curl -s "https://api.github.com/repos/JamesWRC/overseerrPlus/releases" | python3 -c 'import json,sys;releases=json.load(sys.stdin); print([rel.get("tag_name") for rel in releases if rel.get("target_commitish") == "plus/main" ][0].lower().replace("develop-","").replace("v","")) ') >> $GITHUB_ENV
       - name: Bump release version
         id: bump_version
         uses: christian-draeger/increment-semantic-version@1.0.2
