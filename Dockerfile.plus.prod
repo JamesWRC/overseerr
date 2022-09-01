@@ -21,8 +21,3 @@ RUN git clone --depth 1 -b $PLUS_GIT_BRANCH https://github.com/JamesWRC/overseer
 
 RUN cp -R overseerrPlusTemp/* .
 RUN rm -rf overseerrPlusTemp
-
-
-
-RUN yarn install
-RUN yarn build
