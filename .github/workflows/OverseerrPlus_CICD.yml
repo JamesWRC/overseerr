@@ -7,9 +7,6 @@ on:
   # Triggers the workflow on push or pull request events but only for the "plus/main" branch
   push:
     branches: [ "plus/main", "plus/staging", "plus/develop" ]
-  pull_request:
-    branches: [ "plus/main" ]
-
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
