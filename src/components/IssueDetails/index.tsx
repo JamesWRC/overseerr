@@ -1,38 +1,38 @@
+import Badge from '@app/components/Common/Badge';
+import Button from '@app/components/Common/Button';
+import CachedImage from '@app/components/Common/CachedImage';
+import LoadingSpinner from '@app/components/Common/LoadingSpinner';
+import Modal from '@app/components/Common/Modal';
+import PageTitle from '@app/components/Common/PageTitle';
+import IssueComment from '@app/components/IssueDetails/IssueComment';
+import IssueDescription from '@app/components/IssueDetails/IssueDescription';
+import { issueOptions } from '@app/components/IssueModal/constants';
+import useDeepLinks from '@app/hooks/useDeepLinks';
+import { Permission, useUser } from '@app/hooks/useUser';
+import globalMessages from '@app/i18n/globalMessages';
+import Error from '@app/pages/_error';
+import { Transition } from '@headlessui/react';
 import {
   ChatIcon,
   CheckCircleIcon,
-  ExclamationIcon,
   PlayIcon,
   ServerIcon,
 } from '@heroicons/react/outline';
 import { RefreshIcon } from '@heroicons/react/solid';
+import { IssueStatus } from '@server/constants/issue';
+import { MediaType } from '@server/constants/media';
+import type Issue from '@server/entity/Issue';
+import type { MovieDetails } from '@server/models/Movie';
+import type { TvDetails } from '@server/models/Tv';
 import axios from 'axios';
 import { Field, Form, Formik } from 'formik';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { defineMessages, FormattedRelativeTime, useIntl } from 'react-intl';
 import { useToasts } from 'react-toast-notifications';
 import useSWR from 'swr';
 import * as Yup from 'yup';
-import { IssueStatus } from '../../../server/constants/issue';
-import { MediaType } from '../../../server/constants/media';
-import type Issue from '../../../server/entity/Issue';
-import type { MovieDetails } from '../../../server/models/Movie';
-import type { TvDetails } from '../../../server/models/Tv';
-import { Permission, useUser } from '../../hooks/useUser';
-import globalMessages from '../../i18n/globalMessages';
-import Error from '../../pages/_error';
-import Badge from '../Common/Badge';
-import Button from '../Common/Button';
-import CachedImage from '../Common/CachedImage';
-import LoadingSpinner from '../Common/LoadingSpinner';
-import Modal from '../Common/Modal';
-import PageTitle from '../Common/PageTitle';
-import { issueOptions } from '../IssueModal/constants';
-import Transition from '../Transition';
-import IssueComment from './IssueComment';
-import IssueDescription from './IssueDescription';
 
 const messages = defineMessages({
   openedby: '#{issueId} opened {relativeTime} by {username}',
@@ -74,7 +74,7 @@ const isMovie = (movie: MovieDetails | TvDetails): movie is MovieDetails => {
   return (movie as MovieDetails).title !== undefined;
 };
 
-const IssueDetails: React.FC = () => {
+const IssueDetails = () => {
   const { addToast } = useToasts();
   const router = useRouter();
   const intl = useIntl();
@@ -88,6 +88,13 @@ const IssueDetails: React.FC = () => {
       ? `/api/v1/${issueData.media.mediaType}/${issueData.media.tmdbId}`
       : null
   );
+
+  const { plexUrl, plexUrl4k } = useDeepLinks({
+    plexUrl: data?.mediaInfo?.plexUrl,
+    plexUrl4k: data?.mediaInfo?.plexUrl4k,
+    iOSPlexUrl: data?.mediaInfo?.iOSPlexUrl,
+    iOSPlexUrl4k: data?.mediaInfo?.iOSPlexUrl4k,
+  });
 
   const CommentSchema = Yup.object().shape({
     message: Yup.string().required(),
@@ -174,6 +181,7 @@ const IssueDetails: React.FC = () => {
     >
       <PageTitle title={[intl.formatMessage(messages.issuepagetitle), title]} />
       <Transition
+        as="div"
         enter="transition opacity-0 duration-300"
         enterFrom="opacity-0"
         enterTo="opacity-100"
@@ -188,7 +196,6 @@ const IssueDetails: React.FC = () => {
           onOk={() => deleteIssue()}
           okText={intl.formatMessage(messages.deleteissue)}
           okButtonType="danger"
-          iconSvg={<ExclamationIcon />}
         >
           {intl.formatMessage(messages.deleteissueconfirm)}
         </Modal>
@@ -264,7 +271,7 @@ const IssueDetails: React.FC = () => {
                 >
                   <a className="group ml-1 inline-flex h-full items-center xl:ml-1.5">
                     <img
-                      className="mr-0.5 h-5 w-5 scale-100 transform-gpu rounded-full transition duration-300 group-hover:scale-105 xl:mr-1 xl:h-6 xl:w-6"
+                      className="mr-0.5 h-5 w-5 scale-100 transform-gpu rounded-full object-cover transition duration-300 group-hover:scale-105 xl:mr-1 xl:h-6 xl:w-6"
                       src={issueData.createdBy.avatar}
                       alt=""
                     />
@@ -355,7 +362,7 @@ const IssueDetails: React.FC = () => {
               {issueData?.media.plexUrl && (
                 <Button
                   as="a"
-                  href={issueData?.media.plexUrl}
+                  href={plexUrl}
                   target="_blank"
                   rel="noreferrer"
                   className="w-full"
@@ -388,7 +395,7 @@ const IssueDetails: React.FC = () => {
               {issueData?.media.plexUrl4k && (
                 <Button
                   as="a"
-                  href={issueData?.media.plexUrl4k}
+                  href={plexUrl4k}
                   target="_blank"
                   rel="noreferrer"
                   className="w-full"
@@ -591,7 +598,7 @@ const IssueDetails: React.FC = () => {
             {issueData?.media.plexUrl && (
               <Button
                 as="a"
-                href={issueData?.media.plexUrl}
+                href={plexUrl}
                 target="_blank"
                 rel="noreferrer"
                 className="w-full"
@@ -624,7 +631,7 @@ const IssueDetails: React.FC = () => {
             {issueData?.media.plexUrl4k && (
               <Button
                 as="a"
-                href={issueData?.media.plexUrl4k}
+                href={plexUrl4k}
                 target="_blank"
                 rel="noreferrer"
                 className="w-full"

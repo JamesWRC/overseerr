@@ -61,4 +61,5 @@ export interface StatusResponse {
   commitsBehind: number;
   plusUpdateAvailable: boolean;
   plusCommitsBehind: number;
+  restartRequired: boolean;
 }

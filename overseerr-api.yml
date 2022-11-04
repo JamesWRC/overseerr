@@ -2579,6 +2579,12 @@ paths:
             nullable: true
             enum: [debug, info, warn, error]
             default: debug
+        - in: query
+          name: search
+          schema:
+            type: string
+            nullable: true
+            example: plex
       responses:
         '200':
           description: Server log returned
@@ -3552,6 +3558,53 @@ paths:
                       restricted:
                         type: boolean
                         example: false
+  /user/{userId}/watchlist:
+    get:
+      summary: Get user by ID
+      description: |
+        Retrieves a user's Plex Watchlist in a JSON object.
+      tags:
+        - users
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: number
+        - in: query
+          name: page
+          schema:
+            type: number
+            example: 1
+            default: 1
+      responses:
+        '200':
+          description: Watchlist data returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  page:
+                    type: number
+                  totalPages:
+                    type: number
+                  totalResults:
+                    type: number
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        tmdbId:
+                          type: number
+                          example: 1
+                        ratingKey:
+                          type: string
+                        type:
+                          type: string
+                        title:
+                          type: string
   /user/{userId}/settings/main:
     get:
       summary: Get general settings for a user
@@ -4572,9 +4625,13 @@ paths:
                   type: number
                   example: 123
                 seasons:
-                  type: array
-                  items:
-                    type: number
+                  oneOf:
+                    - type: array
+                      items:
+                        type: number
+                        minimum: 1
+                    - type: string
+                      enum: [all]
                 is4k:
                   type: boolean
                   example: false
@@ -4653,7 +4710,7 @@ paths:
                 $ref: '#/components/schemas/MediaRequest'
     put:
       summary: Update MediaRequest
-      description: Updates a specific media request and returns the request in a JSON object.. Requires the `MANAGE_REQUESTS` permission.
+      description: Updates a specific media request and returns the request in a JSON object. Requires the `MANAGE_REQUESTS` permission.
       tags:
         - request
       parameters:
@@ -4664,6 +4721,37 @@ paths:
           example: '1'
           schema:
             type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                mediaType:
+                  type: string
+                  enum: [movie, tv]
+                seasons:
+                  type: array
+                  items:
+                    type: number
+                    minimum: 1
+                is4k:
+                  type: boolean
+                  example: false
+                serverId:
+                  type: number
+                profileId:
+                  type: number
+                rootFolder:
+                  type: string
+                languageProfileId:
+                  type: number
+                userId:
+                  type: number
+                  nullable: true
+              required:
+                - mediaType
       responses:
         '200':
           description: Succesfully updated request
