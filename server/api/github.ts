@@ -101,6 +101,31 @@ class GithubAPI extends ExternalAPI {
     }
   }
 
+  public async getOverseerrPlusReleases({
+    take = 20,
+  }: {
+    take?: number;
+  } = {}): Promise<GitHubRelease[]> {
+    try {
+      const data = await this.get<GitHubRelease[]>(
+        '/repos/JamesWRC/overseerrPlus/releases',
+        {
+          params: {
+            per_page: take,
+          },
+        }
+      );
+
+      return data;
+    } catch (e) {
+      logger.warn(
+        "Failed to retrieve GitHub releases. This may be an issue on GitHub's end. Overseerr can't check if it's on the latest version.",
+        { label: 'GitHub API', errorMessage: e.message }
+      );
+      return [];
+    }
+  }
+
   public async getOverseerrCommits({
     take = 20,
     branch = 'develop',
@@ -111,6 +136,34 @@ class GithubAPI extends ExternalAPI {
     try {
       const data = await this.get<GithubCommit[]>(
         '/repos/sct/overseerr/commits',
+        {
+          params: {
+            per_page: take,
+            branch,
+          },
+        }
+      );
+
+      return data;
+    } catch (e) {
+      logger.warn(
+        "Failed to retrieve GitHub commits. This may be an issue on GitHub's end. Overseerr can't check if it's on the latest version.",
+        { label: 'GitHub API', errorMessage: e.message }
+      );
+      return [];
+    }
+  }
+
+  public async getOverseerrPlusCommits({
+    take = 20,
+    branch = 'plus/develop',
+  }: {
+    take?: number;
+    branch?: string;
+  } = {}): Promise<GithubCommit[]> {
+    try {
+      const data = await this.get<GithubCommit[]>(
+        '/repos/JamesWRC/overseerrPlus/commits',
         {
           params: {
             per_page: take,

@@ -135,6 +135,15 @@ components:
         defaultPermissions:
           type: number
           example: 32
+    OverseerrPlusSettings:
+      type: object
+      properties:
+        showArrivals:
+          type: boolean
+          example: true
+        showMonthArrival:
+          type: boolean
+          example: true
     PlexLibrary:
       type: object
       properties:
@@ -1887,6 +1896,37 @@ paths:
                   appDataPath:
                     type: string
                     example: /app/config
+  /settings/overseerrPlus:
+    get:
+      summary: Get overseerrPlus settings
+      description: Retrieves all overseerrPlus settings in a JSON object.
+      tags:
+        - settings
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OverseerrPlusSettings'
+    post:
+      summary: Update overseerrPlus settings
+      description: Updates overseerrPlus settings with the provided values.
+      tags:
+        - settings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OverseerrPlusSettings'
+      responses:
+        '200':
+          description: 'Values were sucessfully updated'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OverseerrPlusSettings'
   /settings/main:
     get:
       summary: Get main settings
@@ -5161,6 +5201,35 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MediaRequest'
+  /movie/calendar:
+    get:
+      summary: Get upcoming scheduled movies
+      description: Returns Movie objects of scheduled movies.
+      tags:
+        - movies
+      parameters:
+        - in: query
+          name: startTime
+          schema:
+            type: string
+            example: '2022-07-23T14:00:00.000Z'
+        - in: query
+          name: endTime
+          schema:
+            type: string
+            example: '2022-08-13T13:59:59.999Z'
+        - in: query
+          name: language
+          schema:
+            type: string
+            example: en
+      responses:
+        '200':
+          description: Movie details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MovieDetails'
   /movie/{movieId}:
     get:
       summary: Get movie details
@@ -5318,6 +5387,35 @@ paths:
                   audienceRating:
                     type: string
                     enum: ['Spilled', 'Upright']
+  /tv/calendar:
+    get:
+      summary: Get upcoming scheduled shows
+      description: Returns TV objects of scheduled shows.
+      tags:
+        - tv
+      parameters:
+        - in: query
+          name: startTime
+          schema:
+            type: string
+            example: '2022-07-23T14:00:00.000Z'
+        - in: query
+          name: endTime
+          schema:
+            type: string
+            example: '2022-08-13T13:59:59.999Z'
+        - in: query
+          name: language
+          schema:
+            type: string
+            example: en
+      responses:
+        '200':
+          description: TV details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TvDetails'
   /tv/{tvId}:
     get:
       summary: Get TV details

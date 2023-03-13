@@ -251,6 +251,12 @@ export type JobId =
   | 'image-cache-cleanup'
   | 'availability-sync';
 
+export interface OverseerrPlus {
+  // OverseerrPlus settings variables should be prefixed with OSP to avoid future naming issues.
+  OSPShowArrivalsTab: boolean;
+  OSPArrivalsShowMonth: boolean;
+}
+
 interface AllSettings {
   clientId: string;
   vapidPublic: string;
@@ -263,6 +269,7 @@ interface AllSettings {
   public: PublicSettings;
   notifications: NotificationSettings;
   jobs: Record<JobId, JobSettings>;
+  overseerrPlus: OverseerrPlus;
 }
 
 const SETTINGS_PATH = process.env.CONFIG_DIRECTORY
@@ -423,6 +430,10 @@ class Settings {
           schedule: '0 0 5 * * *',
         },
       },
+      overseerrPlus: {
+        OSPShowArrivalsTab: false,
+        OSPArrivalsShowMonth: false,
+      }
     };
     if (initialSettings) {
       this.data = merge(this.data, initialSettings);
@@ -541,6 +552,14 @@ class Settings {
     this.generateVapidKeys();
 
     return this.data.vapidPrivate;
+  }
+
+  get overseerrPlus(): OverseerrPlus {
+    return this.data.overseerrPlus;
+  }
+
+  set overseerrPlus(data: OverseerrPlus) {
+    this.data.overseerrPlus = data;
   }
 
   public regenerateApiKey(): MainSettings {

@@ -13,6 +13,7 @@ const messages = defineMessages({
   menuLogs: 'Logs',
   menuJobs: 'Jobs & Cache',
   menuAbout: 'About',
+  overseerrPlus: 'OverseerrPlus',
 });
 
 type SettingsLayoutProps = {
@@ -62,6 +63,11 @@ const SettingsLayout = ({ children }: SettingsLayoutProps) => {
       text: intl.formatMessage(messages.menuAbout),
       route: '/settings/about',
       regex: /^\/settings\/about/,
+    },
+    {
+      text: intl.formatMessage(messages.overseerrPlus),
+      route: '/settings/overseerrPlus',
+      regex: /^\/settings\/overseerrPlus/,
     },
   ];
 

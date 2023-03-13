@@ -1,7 +1,7 @@
 import logger from '@server/logger';
 import ServarrBase from './base';
-
 export interface SonarrSeason {
+
   seasonNumber: number;
   monitored: boolean;
   statistics?: {
@@ -92,6 +92,22 @@ export interface AddSeriesOptions {
   searchNow?: boolean;
 }
 
+export interface ShowCalendarItem {
+  seriesId: number,
+  episodeFileId: number,
+  seasonNumber: number,
+  episodeNumber: number,
+  title: string,
+  airDate: string,
+  airDateUtc: string,
+  overview: string,
+  hasFile: boolean,
+  monitored: boolean,
+  absoluteEpisodeNumber: number,
+  unverifiedSceneNumbering: boolean,
+  id: number
+}
+
 export interface LanguageProfile {
   id: number;
   name: string;
@@ -113,6 +129,35 @@ class SonarrAPI extends ServarrBase<{
       return response.data;
     } catch (e) {
       throw new Error(`[Sonarr] Failed to retrieve series: ${e.message}`);
+    }
+  }
+
+  public async getSeriesByID(seriesId: number): Promise<SonarrSeries> {
+    try {
+      // Will get all items in the calendar
+      const seriesRequest = await this.axios.get<SonarrSeries>(`/series/${seriesId}`)
+
+      return seriesRequest.data;
+
+    } catch (e) {
+      throw new Error(`[Sonarr] Failed to retrieve calendar data: ${e.message}`);
+    }
+  }
+
+  public async getCalendarItems(startTime: string, endTime: string): Promise<ShowCalendarItem[]> {
+    try {
+
+      // Request calendar items from Sonarr
+      const calendarItemsRequest = await this.axios.get<ShowCalendarItem[]>('/calendar', {
+        params: {
+          unmonitored: false, start: startTime, end: endTime
+        },
+      })
+
+      return calendarItemsRequest.data;
+
+    } catch (e) {
+      throw new Error(`[Sonarr] Failed to retrieve calendar data: ${e.message}`);
     }
   }
 
@@ -321,6 +366,7 @@ class SonarrAPI extends ServarrBase<{
 
     return newSeasons;
   }
+
 }
 
 export default SonarrAPI;

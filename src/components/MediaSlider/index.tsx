@@ -8,8 +8,14 @@ import { MediaStatus } from '@server/constants/media';
 import type {
   MovieResult,
   PersonResult,
-  TvResult,
+  TvResult
 } from '@server/models/Search';
+
+//import PersonCard from '../PersonCard';
+//import Slider from '../Slider';
+//import TitleCard from '../TitleCard';
+//import ShowMoreCard from './ShowMoreCard';
+
 import Link from 'next/link';
 import { useEffect } from 'react';
 import useSWRInfinite from 'swr/infinite';

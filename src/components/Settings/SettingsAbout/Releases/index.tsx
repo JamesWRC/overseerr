@@ -30,6 +30,9 @@ const messages = defineMessages({
 const REPO_RELEASE_API =
   'https://api.github.com/repos/sct/overseerr/releases?per_page=20';
 
+const OVERSEERRPLUS_REPO_RELEASE_API =
+  'https://api.github.com/repos/JamesWRC/overseerrPlus/releases?per_page=20';
+
 interface GitHubRelease {
   url: string;
   assets_url: string;
@@ -121,11 +124,14 @@ const Release = ({ currentVersion, release, isLatest }: ReleaseProps) => {
 
 interface ReleasesProps {
   currentVersion: string;
+  isOverseerrPlus: boolean;
 }
 
-const Releases = ({ currentVersion }: ReleasesProps) => {
+const Releases: React.FC<ReleasesProps> = ({ currentVersion, isOverseerrPlus }) => {
   const intl = useIntl();
-  const { data, error } = useSWR<GitHubRelease[]>(REPO_RELEASE_API);
+  const { data, error } = useSWR<GitHubRelease[]>(
+    isOverseerrPlus ? OVERSEERRPLUS_REPO_RELEASE_API : REPO_RELEASE_API
+  );
 
   if (!data && !error) {
     return <LoadingSpinner />;
@@ -141,7 +147,11 @@ const Releases = ({ currentVersion }: ReleasesProps) => {
 
   return (
     <div>
-      <h3 className="heading">{intl.formatMessage(messages.releases)}</h3>
+      <h3 className="heading">
+        {isOverseerrPlus
+          ? 'OverseerrPlus ' + intl.formatMessage(messages.releases)
+          : '' + intl.formatMessage(messages.releases)}
+      </h3>
       <div className="section space-y-3">
         {data.map((release, index) => {
           return (

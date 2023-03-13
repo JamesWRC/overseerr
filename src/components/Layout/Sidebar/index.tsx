@@ -4,6 +4,7 @@ import { Permission, useUser } from '@app/hooks/useUser';
 import { Transition } from '@headlessui/react';
 import {
   ClockIcon,
+  CloudDownloadIcon,
   CogIcon,
   ExclamationTriangleIcon,
   FilmIcon,
@@ -16,12 +17,16 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { Fragment, useRef } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
+import useSWR from 'swr';
+import { OverseerrPlus } from '../../../../server/lib/settings';
+import VersionStatus from '../VersionStatus';
 
 export const menuMessages = defineMessages({
   dashboard: 'Discover',
   browsemovies: 'Movies',
   browsetv: 'Series',
   requests: 'Requests',
+  arrivals: 'Arrivals',
   issues: 'Issues',
   users: 'Users',
   settings: 'Settings',
@@ -106,6 +111,25 @@ const Sidebar = ({ open, setClosed }: SidebarProps) => {
   const intl = useIntl();
   const { hasPermission } = useUser();
   useClickOutside(navRef, () => setClosed());
+
+  // Get overseerrPlus settings
+  const overseerrPlusSettings = useSWR<OverseerrPlus>(() => {
+    return '/api/v1/settings/overseerrPlus';
+  });
+
+  // Check if ArrivalsTab is enabled and arrivals has been added, if not add it at position.
+  if (
+    overseerrPlusSettings.data?.OSPShowArrivalsTab &&
+    !SidebarLinks.some((sidebar) => sidebar.messagesKey === 'arrivals')
+  ) {
+    const arrivalsTab: SidebarLinkProps = {
+      href: '/arrivals',
+      messagesKey: 'arrivals',
+      svgIcon: <CloudDownloadIcon className="mr-3 h-6 w-6" />,
+      activeRegExp: /^\/arrivals/,
+    };
+    SidebarLinks.splice(2, 0, arrivalsTab);
+  }
 
   return (
     <>

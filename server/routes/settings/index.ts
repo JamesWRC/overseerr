@@ -23,7 +23,7 @@ import logger from '@server/logger';
 import { isAuthenticated } from '@server/middleware/auth';
 import discoverSettingRoutes from '@server/routes/settings/discover';
 import { appDataPath } from '@server/utils/appDataVolume';
-import { getAppVersion } from '@server/utils/appVersion';
+import { getAppVersion, getPlusAppVersion } from '@server/utils/appVersion';
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import fs from 'fs';
@@ -32,6 +32,8 @@ import { rescheduleJob } from 'node-schedule';
 import path from 'path';
 import semver from 'semver';
 import { URL } from 'url';
+
+
 import notificationRoutes from './notifications';
 import radarrRoutes from './radarr';
 import sonarrRoutes from './sonarr';
@@ -611,11 +613,27 @@ settingsRoutes.get('/about', async (req, res) => {
 
   return res.status(200).json({
     version: getAppVersion(),
+    plusVersion: getPlusAppVersion(),
     totalMediaItems,
     totalRequests,
     tz: process.env.TZ,
     appDataPath: appDataPath(),
   } as SettingsAboutResponse);
+});
+
+settingsRoutes.get('/overseerrPlus', (_req, res) => {
+  const settings = getSettings();
+
+  res.status(200).json(settings.overseerrPlus);
+});
+
+settingsRoutes.post('/overseerrPlus', async (req, res, next) => {
+  const settings = getSettings();
+
+  Object.assign(settings.overseerrPlus, req.body);
+  settings.save();
+
+  return res.status(200).json(settings.tautulli);
 });
 
 export default settingsRoutes;

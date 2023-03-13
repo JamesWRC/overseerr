@@ -9,8 +9,9 @@ import Error from '@app/pages/_error';
 import { InformationCircleIcon } from '@heroicons/react/24/solid';
 import type {
   SettingsAboutResponse,
-  StatusResponse,
+  StatusResponse
 } from '@server/interfaces/api/settingsInterfaces';
+
 import { defineMessages, useIntl } from 'react-intl';
 import useSWR from 'swr';
 
@@ -82,6 +83,34 @@ const SettingsAbout = () => {
           </div>
         </div>
       </div>
+      {
+        // OverseerrPlus github link banner
+      }
+      <div className="mt-6 rounded-md bg-indigo-700 p-4">
+        <div className="flex">
+          <div className="flex-shrink-0">
+            <InformationCircleIcon className="h-5 w-5 text-white" />
+          </div>
+          <div className="ml-3 flex-1 md:flex md:justify-between">
+            <p className="text-sm leading-5 text-white">
+              <b>OverseerrPlus: </b>
+              <br />
+              Please use this link to report OverseerrPlus features only. &nbsp;
+              {intl.formatMessage(messages.betawarning)}
+            </p>
+            <p className="mt-3 text-sm leading-5 md:mt-0 md:ml-6">
+              <a
+                href="http://github.com/JamesWRC/overseerrPlus"
+                className="whitespace-nowrap font-medium text-indigo-100 transition duration-150 ease-in-out hover:text-white"
+                target="_blank"
+                rel="noreferrer"
+              >
+                GitHub &rarr;
+              </a>
+            </p>
+          </div>
+        </div>
+      </div>
       <div className="section">
         <List title={intl.formatMessage(messages.overseerrinformation)}>
           {data.version.startsWith('develop-') && (
@@ -137,6 +166,53 @@ const SettingsAbout = () => {
                 </a>
               ))}
           </List.Item>
+          {
+            // OverseerrPlus version info
+          }
+          <List.Item
+            title={'OverseerrPlus ' + intl.formatMessage(messages.version)}
+            className="flex flex-row items-center truncate"
+          >
+            <code className="truncate">
+              {data.plusVersion.replace('develop-', '')}
+            </code>
+            {status?.plusCommitTag !== 'local' &&
+              (status?.plusUpdateAvailable ? (
+                <a
+                  href={
+                    data.version.startsWith('develop-')
+                      ? `https://github.com/JamesWRC/overseerrPlus/compare/${status.plusCommitTag}...plus/develop`
+                      : 'https://github.com/JamesWRC/overseerrPlus/releases'
+                  }
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Badge
+                    badgeType="warning"
+                    className="ml-2 !cursor-pointer transition hover:bg-yellow-400"
+                  >
+                    {intl.formatMessage(messages.outofdate)}
+                  </Badge>
+                </a>
+              ) : (
+                <a
+                  href={
+                    data.version.startsWith('develop-')
+                      ? 'https://github.com/JamesWRC/overseerrPlus/commits/plus/develop'
+                      : 'https://github.com/JamesWRC/overseerrPlus/releases'
+                  }
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Badge
+                    badgeType="success"
+                    className="ml-2 !cursor-pointer transition hover:bg-green-400"
+                  >
+                    {intl.formatMessage(messages.uptodate)}
+                  </Badge>
+                </a>
+              ))}
+          </List.Item>
           <List.Item title={intl.formatMessage(messages.totalmedia)}>
             {intl.formatNumber(data.totalMediaItems)}
           </List.Item>
@@ -165,6 +241,28 @@ const SettingsAbout = () => {
               https://docs.overseerr.dev
             </a>
           </List.Item>
+          <>
+            <div>
+              <div className="max-w-6xl py-4 sm:grid sm:grid-cols-3 sm:gap-4">
+                <dt className="block text-sm font-bold text-gray-400">
+                  <span className="text-gray-200">OverseerrPlus</span>&nbsp;
+                  {intl.formatMessage(messages.documentation)}
+                </dt>
+                <dd className="flex text-sm text-white sm:col-span-2 sm:mt-0">
+                  <span className={`flex-grow ${'className'}`}>
+                    <a
+                      href="https://github.com/JamesWRC/overseerrPlus/wiki"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-indigo-500 transition duration-300 hover:underline"
+                    >
+                      https://github.com/JamesWRC/overseerrPlus/wiki
+                    </a>
+                  </span>
+                </dd>
+              </div>
+            </div>
+          </>
           <List.Item title={intl.formatMessage(messages.githubdiscussions)}>
             <a
               href="https://github.com/sct/overseerr/discussions"
@@ -175,6 +273,28 @@ const SettingsAbout = () => {
               https://github.com/sct/overseerr/discussions
             </a>
           </List.Item>
+          <>
+            <div>
+              <div className="max-w-6xl py-4 sm:grid sm:grid-cols-3 sm:gap-4">
+                <dt className="block text-sm font-bold text-gray-400">
+                  <span className="text-gray-200">OverseerrPlus</span>
+                  &nbsp;GitHub Discussions
+                </dt>
+                <dd className="flex text-sm text-white sm:col-span-2 sm:mt-0">
+                  <span className={`flex-grow ${'className'}`}>
+                    <a
+                      href="https://github.com/JamesWRC/overseerrPlus/discussions"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-indigo-500 transition duration-300 hover:underline"
+                    >
+                      https://github.com/JamesWRC/overseerrPlus/discussions
+                    </a>
+                  </span>
+                </dd>
+              </div>
+            </div>
+          </>
           <List.Item title="Discord">
             <a
               href="https://discord.gg/overseerr"
@@ -217,7 +337,10 @@ const SettingsAbout = () => {
         </List>
       </div>
       <div className="section">
-        <Releases currentVersion={data.version} />
+        <Releases currentVersion={data.plusVersion} isOverseerrPlus={true} />
+      </div>
+      <div className="section">
+        <Releases currentVersion={data.version} isOverseerrPlus={false} />
       </div>
     </>
   );
