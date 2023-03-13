@@ -64,7 +64,7 @@ const VersionStatus = ({ onClick }: VersionStatusProps) => {
               }`}
           >
             {data.commitTag === 'local' ? (
-              <CodeIcon className="h-6 w-6" />
+              <CodeBracketIcon className="h-6 w-6" />
             ) : data.plusVersion.startsWith('develop-') ? (
               <BeakerIcon className="h-6 w-6" />
             ) : (
@@ -88,7 +88,7 @@ const VersionStatus = ({ onClick }: VersionStatusProps) => {
                 )}
               </span>
             </div>
-            {data.updateAvailable && <ArrowCircleUpIcon className="h-6 w-6" />}
+            {data.updateAvailable && <ArrowUpCircleIcon className="h-6 w-6" />}
           </a>
         </Link>
       </div>
@@ -108,7 +108,7 @@ const VersionStatus = ({ onClick }: VersionStatusProps) => {
             }`}
         >
           {data.commitTag === 'local' ? (
-            <CodeIcon className="h-6 w-6" />
+            <CodeBracketIcon className="h-6 w-6" />
           ) : data.version.startsWith('develop-') ? (
             <BeakerIcon className="h-6 w-6" />
           ) : (
@@ -132,7 +132,7 @@ const VersionStatus = ({ onClick }: VersionStatusProps) => {
               )}
             </span>
           </div>
-          {data.updateAvailable && <ArrowCircleUpIcon className="h-6 w-6" />}
+          {data.updateAvailable && <ArrowUpCircleIcon className="h-6 w-6" />}
         </a>
       </Link>
     </div>
