@@ -73,3 +73,5 @@ committag.json
 # Other OverseerrPlus files
 config/*
 
+# Config Cache Directory
+config/cache

@@ -1,9 +1,9 @@
 import {
-  ArrowCircleUpIcon,
+  ArrowUpCircleIcon,
   BeakerIcon,
-  CodeIcon,
-  ServerIcon
-} from '@heroicons/react/outline';
+  CodeBracketIcon,
+  ServerIcon,
+} from '@heroicons/react/24/outline';
 import type { StatusResponse } from '@server/interfaces/api/settingsInterfaces';
 import Link from 'next/link';
 import { defineMessages, useIntl } from 'react-intl';

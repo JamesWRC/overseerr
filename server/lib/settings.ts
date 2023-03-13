@@ -247,7 +247,8 @@ export type JobId =
   | 'radarr-scan'
   | 'sonarr-scan'
   | 'download-sync'
-  | 'download-sync-reset';
+  | 'download-sync-reset'
+  | 'image-cache-cleanup';
 
 export interface OverseerrPlus {
   // OverseerrPlus settings variables should be prefixed with OSP to avoid future naming issues.
@@ -420,6 +421,9 @@ class Settings {
         },
         'download-sync-reset': {
           schedule: '0 0 1 * * *',
+        },
+        'image-cache-cleanup': {
+          schedule: '0 0 5 * * *',
         },
       },
       overseerrPlus: {
