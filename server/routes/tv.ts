@@ -39,6 +39,11 @@ tvRoutes.get('/calendar', async (req, res, next) => {
     // Search through all sonarr servers
     for (const sonarrInstance of sonarrSettings) {
 
+      // Skip the 4k server if its the same server. IE the 4k server is the same server but with the 4k quality profile applied.
+      if (sonarrSettings.filter(e => (e.hostname === sonarrInstance.hostname && e.port === sonarrInstance.port && sonarrInstance.is4k)).length > 0) {
+        continue
+      }
+
       // Get Sonarr instance
       const sonarr = new SonarrAPI({
         apiKey: sonarrInstance.apiKey,

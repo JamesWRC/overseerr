@@ -36,6 +36,10 @@ movieRoutes.get('/calendar', async (req, res, next) => {
     // Search through all radarr servers
     for (const radarrInstance of radarrSettings) {
 
+      // Skip the 4k server if its the same server. IE the 4k server is the same server but with the 4k quality profile applied.
+      if (radarrSettings.filter(e => (e.hostname === radarrInstance.hostname && e.port === radarrInstance.port && radarrInstance.is4k)).length > 0) {
+        continue
+      }
       // Get radarr instance
       const radarr = new RadarrAPI({
         apiKey: radarrInstance.apiKey,

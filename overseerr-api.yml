@@ -1900,8 +1900,9 @@ paths:
     get:
       summary: Get overseerrPlus settings
       description: Retrieves all overseerrPlus settings in a JSON object.
+      security: []
       tags:
-        - settings
+        - public
       responses:
         '200':
           description: OK

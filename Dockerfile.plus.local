@@ -1,5 +1,5 @@
 # FROM sctx/overseerr:latest
-FROM node:16.14-alpine
+FROM node:16.17-alpine
 
 ARG COMMIT_TAG
 ENV COMMIT_TAG=${COMMIT_TAG}

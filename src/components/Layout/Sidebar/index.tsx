@@ -11,15 +11,15 @@ import {
   TvIcon,
   UsersIcon,
   XMarkIcon,
+  CloudArrowDownIcon,
+  HeartIcon,
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { Fragment, useRef } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import useSWR from 'swr';
-import { OverseerrPlus } from '../../../../server/lib/settings';
-import { getSettings } from '@server/lib/settings';
-import logger from '@server/logger';
+// import useSWR from 'swr';
+// import { OverseerrPlus } from '../../../../server/lib/settings';
 
 export const menuMessages = defineMessages({
   dashboard: 'Discover',
@@ -30,6 +30,7 @@ export const menuMessages = defineMessages({
   issues: 'Issues',
   users: 'Users',
   settings: 'Settings',
+  supportServers: 'Support'
 });
 
 interface SidebarProps {
@@ -103,6 +104,14 @@ const SidebarLinks: SidebarLinkProps[] = [
     requiredPermission: Permission.ADMIN,
     dataTestId: 'sidebar-menu-settings',
   },
+  {
+    href: '/support-servers',
+    messagesKey: 'supportServers',
+    svgIcon: <HeartIcon className="mr-3 h-6 w-6" />,
+    activeRegExp: /^\/settings/,
+    requiredPermission: Permission.ADMIN,
+    dataTestId: 'sidebar-menu-support',
+  },
 ];
 
 const Sidebar = ({ open, setClosed }: SidebarProps) => {
@@ -112,24 +121,18 @@ const Sidebar = ({ open, setClosed }: SidebarProps) => {
   const { hasPermission } = useUser();
   useClickOutside(navRef, () => setClosed());
 
-  // Get overseerrPlus settings
-  // const overseerrPlusSettings = useSWR<OverseerrPlus>(() => {
-  //   return '/api/v1/settings/overseerrPlus';
-  // });
-  console.log("getSettings().overseerrPlus.OSPShowArrivalsTab")
-  logger.debug(getSettings().overseerrPlus.OSPShowArrivalsTab)
   // Check if ArrivalsTab is enabled and arrivals has been added, if not add it at position.
   if (
-    getSettings().overseerrPlus.OSPShowArrivalsTab &&
+    // getSettings().overseerrPlus.OSPShowArrivalsTab &&
     !SidebarLinks.some((sidebar) => sidebar.messagesKey === 'arrivals')
   ) {
     const arrivalsTab: SidebarLinkProps = {
       href: '/arrivals',
       messagesKey: 'arrivals',
-      svgIcon: <CogIcon className="mr-3 h-6 w-6" />,
+      svgIcon: <CloudArrowDownIcon className="mr-3 h-6 w-6" />,
       activeRegExp: /^\/arrivals/,
     };
-    // SidebarLinks.splice(2, 0, arrivalsTab);
+    SidebarLinks.splice(2, 0, arrivalsTab);
   }
 
   return (
