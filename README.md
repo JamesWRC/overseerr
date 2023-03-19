@@ -17,6 +17,17 @@
 
 **Overseerr** is a free and open source software application for managing requests for your media library. It integrates with your existing services, such as **[Sonarr](https://sonarr.tv/)**, **[Radarr](https://radarr.video/)**, and **[Plex](https://www.plex.tv/)**!
 
+## Overseerr+ Features
+- Arrivals Tab | See what content is being added over the next month
+- Support Tab | Many users ask how to support your, efforts? Now you can with Stripe payment link integrations
+
+### Overseerr environment variables:
+See the .prod.plus.env file (also shown in the docker-compose.plus.prod.yml example)
+Stripe Support intergration: Get these links from your Stripe product payment links
+- STRIPE_ONE_OFF="" 
+- STRIPE_RECURRING=""
+
+
 ## Current Features
 
 - Full Plex integration. Authenticate and manage user access with Plex!

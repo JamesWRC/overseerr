@@ -1,6 +1,8 @@
-if [ ! -f .env ]
+if [ -f .prod.plus.env ]
 then
   export $(cat .prod.plus.env | xargs)
+else
+echo '!! no .prod.plus.env exists'
 fi
 
 
@@ -36,7 +38,7 @@ BUILD_PLATFORMS="linux/amd64,linux/amd64/v2,linux/amd64/v3,linux/arm64"
 
 echo
 echo "Building for platforms: ${BUILD_PLATFORMS}."
-echo "  BUILD ARGS -> \n\t ${BUILD_ARGS} "
+echo "  BUILD ARGS -> ${BUILD_ARGS} "
 echo
 
 cmd="docker buildx build --push --platform $BUILD_PLATFORMS $BUILD_ARGS -f Dockerfile -t jameswrc/overseerrplus:$PLUS_DOCKER_BUILD_TAG ."

@@ -1,9 +1,4 @@
 import React from 'react';
-import { defineMessages, useIntl } from 'react-intl';
-import useSWR from 'swr';
-import { OverseerrPlus } from '../../../server/lib/settings';
-import ArrivalsSlider from './ArrivalsSlider';
-
 import { CheckIcon } from '@heroicons/react/20/solid'
 
 const tiers = [
