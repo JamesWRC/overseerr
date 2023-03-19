@@ -1,4 +1,4 @@
-import { SaveIcon } from '@heroicons/react/outline';
+import { ArrowDownIcon } from '@heroicons/react/24/solid';
 import axios from 'axios';
 import { Field, Form, Formik } from 'formik';
 import React from 'react';
@@ -137,7 +137,7 @@ const SettingsOverseerrPlus: React.FC = () => {
                                                 type="submit"
                                                 disabled={isSubmitting}
                                             >
-                                                <SaveIcon />
+                                                <ArrowDownIcon />
                                                 <span>
                                                     {isSubmitting
                                                         ? intl.formatMessage(globalMessages.saving)

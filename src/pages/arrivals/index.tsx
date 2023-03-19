@@ -7,9 +7,8 @@ import { Permission } from '../../hooks/useUser';
 const ArrivalsPage: NextPage = () => {
     useRouteGuard(
         [
-            Permission.MANAGE_ISSUES,
-            Permission.CREATE_ISSUES,
-            Permission.VIEW_ISSUES,
+            // Pretty much everyuser 
+            Permission.REQUEST
         ],
         {
             type: 'or',

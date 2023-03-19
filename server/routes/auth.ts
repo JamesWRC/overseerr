@@ -1,12 +1,12 @@
+import PlexTvAPI from '@server/api/plextv';
+import { UserType } from '@server/constants/user';
+import { getRepository } from '@server/datasource';
+import { User } from '@server/entity/User';
+import { Permission } from '@server/lib/permissions';
+import { getSettings } from '@server/lib/settings';
+import logger from '@server/logger';
+import { isAuthenticated } from '@server/middleware/auth';
 import { Router } from 'express';
-import { getRepository } from 'typeorm';
-import PlexTvAPI from '../api/plextv';
-import { UserType } from '../constants/user';
-import { User } from '../entity/User';
-import { Permission } from '../lib/permissions';
-import { getSettings } from '../lib/settings';
-import logger from '../logger';
-import { isAuthenticated } from '../middleware/auth';
 
 const authRoutes = Router();
 
@@ -64,13 +64,28 @@ authRoutes.post('/plex', async (req, res, next) => {
       await userRepository.save(user);
     } else {
       const mainUser = await userRepository.findOneOrFail({
-        select: ['id', 'plexToken', 'plexId'],
-        order: { id: 'ASC' },
+        select: { id: true, plexToken: true, plexId: true, email: true },
+        where: { id: 1 },
       });
       const mainPlexTv = new PlexTvAPI(mainUser.plexToken ?? '');
 
+      if (!account.id) {
+        logger.error('Plex ID was missing from Plex.tv response', {
+          label: 'API',
+          ip: req.ip,
+          email: account.email,
+          plexUsername: account.username,
+        });
+
+        return next({
+          status: 500,
+          message: 'Something went wrong. Try again.',
+        });
+      }
+
       if (
         account.id === mainUser.plexId ||
+        (account.email === mainUser.email && !mainUser.plexId) ||
         (await mainPlexTv.checkUserAccess(account.id))
       ) {
         if (user) {
@@ -204,8 +219,8 @@ authRoutes.post('/local', async (req, res, next) => {
     }
 
     const mainUser = await userRepository.findOneOrFail({
-      select: ['id', 'plexToken', 'plexId'],
-      order: { id: 'ASC' },
+      select: { id: true, plexToken: true, plexId: true },
+      where: { id: 1 },
     });
     const mainPlexTv = new PlexTvAPI(mainUser.plexToken ?? '');
 

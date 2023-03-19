@@ -1,14 +1,13 @@
 import {
-  ArrowCircleUpIcon,
+  ArrowUpCircleIcon,
   BeakerIcon,
-  CodeIcon,
-  ServerIcon
-} from '@heroicons/react/outline';
+  CodeBracketIcon,
+  ServerIcon,
+} from '@heroicons/react/24/outline';
+import type { StatusResponse } from '@server/interfaces/api/settingsInterfaces';
 import Link from 'next/link';
-import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import useSWR from 'swr';
-import { StatusResponse } from '../../../../server/interfaces/api/settingsInterfaces';
 
 const messages = defineMessages({
   streamdevelop: 'Overseerr Develop',
@@ -22,7 +21,7 @@ interface VersionStatusProps {
   onClick?: () => void;
 }
 
-const VersionStatus: React.FC<VersionStatusProps> = ({ onClick }) => {
+const VersionStatus = ({ onClick }: VersionStatusProps) => {
   const intl = useIntl();
   const { data } = useSWR<StatusResponse>('/api/v1/status', {
     refreshInterval: 60 * 1000,
@@ -65,7 +64,7 @@ const VersionStatus: React.FC<VersionStatusProps> = ({ onClick }) => {
               }`}
           >
             {data.commitTag === 'local' ? (
-              <CodeIcon className="h-6 w-6" />
+              <CodeBracketIcon className="h-6 w-6" />
             ) : data.plusVersion.startsWith('develop-') ? (
               <BeakerIcon className="h-6 w-6" />
             ) : (
@@ -89,7 +88,7 @@ const VersionStatus: React.FC<VersionStatusProps> = ({ onClick }) => {
                 )}
               </span>
             </div>
-            {data.updateAvailable && <ArrowCircleUpIcon className="h-6 w-6" />}
+            {data.updateAvailable && <ArrowUpCircleIcon className="h-6 w-6" />}
           </a>
         </Link>
       </div>
@@ -109,7 +108,7 @@ const VersionStatus: React.FC<VersionStatusProps> = ({ onClick }) => {
             }`}
         >
           {data.commitTag === 'local' ? (
-            <CodeIcon className="h-6 w-6" />
+            <CodeBracketIcon className="h-6 w-6" />
           ) : data.version.startsWith('develop-') ? (
             <BeakerIcon className="h-6 w-6" />
           ) : (
@@ -133,7 +132,7 @@ const VersionStatus: React.FC<VersionStatusProps> = ({ onClick }) => {
               )}
             </span>
           </div>
-          {data.updateAvailable && <ArrowCircleUpIcon className="h-6 w-6" />}
+          {data.updateAvailable && <ArrowUpCircleIcon className="h-6 w-6" />}
         </a>
       </Link>
     </div>

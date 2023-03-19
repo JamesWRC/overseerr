@@ -1,10 +1,10 @@
+import TheMovieDb from '@server/api/themoviedb';
+import type { TmdbSearchMultiResponse } from '@server/api/themoviedb/interfaces';
+import Media from '@server/entity/Media';
+import { findSearchProvider } from '@server/lib/search';
+import logger from '@server/logger';
+import { mapSearchResults } from '@server/models/Search';
 import { Router } from 'express';
-import TheMovieDb from '../api/themoviedb';
-import { TmdbSearchMultiResponse } from '../api/themoviedb/interfaces';
-import Media from '../entity/Media';
-import { findSearchProvider } from '../lib/search';
-import logger from '../logger';
-import { mapSearchResults } from '../models/Search';
 
 const searchRoutes = Router();
 
@@ -52,6 +52,52 @@ searchRoutes.get('/', async (req, res, next) => {
     return next({
       status: 500,
       message: 'Unable to retrieve search results.',
+    });
+  }
+});
+
+searchRoutes.get('/keyword', async (req, res, next) => {
+  const tmdb = new TheMovieDb();
+
+  try {
+    const results = await tmdb.searchKeyword({
+      query: req.query.query as string,
+      page: Number(req.query.page),
+    });
+
+    return res.status(200).json(results);
+  } catch (e) {
+    logger.debug('Something went wrong retrieving keyword search results', {
+      label: 'API',
+      errorMessage: e.message,
+      query: req.query.query,
+    });
+    return next({
+      status: 500,
+      message: 'Unable to retrieve keyword search results.',
+    });
+  }
+});
+
+searchRoutes.get('/company', async (req, res, next) => {
+  const tmdb = new TheMovieDb();
+
+  try {
+    const results = await tmdb.searchCompany({
+      query: req.query.query as string,
+      page: Number(req.query.page),
+    });
+
+    return res.status(200).json(results);
+  } catch (e) {
+    logger.debug('Something went wrong retrieving company search results', {
+      label: 'API',
+      errorMessage: e.message,
+      query: req.query.query,
+    });
+    return next({
+      status: 500,
+      message: 'Unable to retrieve company search results.',
     });
   }
 });

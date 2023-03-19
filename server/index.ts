@@ -1,34 +1,40 @@
+import PlexAPI from '@server/api/plexapi';
+import dataSource, { getRepository } from '@server/datasource';
+import DiscoverSlider from '@server/entity/DiscoverSlider';
+import { Session } from '@server/entity/Session';
+import { User } from '@server/entity/User';
+import { startJobs } from '@server/job/schedule';
+import notificationManager from '@server/lib/notifications';
+import DiscordAgent from '@server/lib/notifications/agents/discord';
+import EmailAgent from '@server/lib/notifications/agents/email';
+import GotifyAgent from '@server/lib/notifications/agents/gotify';
+import LunaSeaAgent from '@server/lib/notifications/agents/lunasea';
+import PushbulletAgent from '@server/lib/notifications/agents/pushbullet';
+import PushoverAgent from '@server/lib/notifications/agents/pushover';
+import SlackAgent from '@server/lib/notifications/agents/slack';
+import TelegramAgent from '@server/lib/notifications/agents/telegram';
+import WebhookAgent from '@server/lib/notifications/agents/webhook';
+import WebPushAgent from '@server/lib/notifications/agents/webpush';
+import { getSettings } from '@server/lib/settings';
+import logger from '@server/logger';
+import clearCookies from '@server/middleware/clearcookies';
+import routes from '@server/routes';
+import imageproxy from '@server/routes/imageproxy';
+import { getAppVersion } from '@server/utils/appVersion';
+import restartFlag from '@server/utils/restartFlag';
 import { getClientIp } from '@supercharge/request-ip';
 import { TypeormStore } from 'connect-typeorm/out';
 import cookieParser from 'cookie-parser';
 import csurf from 'csurf';
-import express, { NextFunction, Request, Response } from 'express';
+import type { NextFunction, Request, Response } from 'express';
+import express from 'express';
 import * as OpenApiValidator from 'express-openapi-validator';
-import session, { Store } from 'express-session';
+import type { Store } from 'express-session';
+import session from 'express-session';
 import next from 'next';
 import path from 'path';
 import swaggerUi from 'swagger-ui-express';
-import { createConnection, getRepository } from 'typeorm';
 import YAML from 'yamljs';
-import PlexAPI from './api/plexapi';
-import { Session } from './entity/Session';
-import { User } from './entity/User';
-import { startJobs } from './job/schedule';
-import notificationManager from './lib/notifications';
-import DiscordAgent from './lib/notifications/agents/discord';
-import EmailAgent from './lib/notifications/agents/email';
-import GotifyAgent from './lib/notifications/agents/gotify';
-import LunaSeaAgent from './lib/notifications/agents/lunasea';
-import PushbulletAgent from './lib/notifications/agents/pushbullet';
-import PushoverAgent from './lib/notifications/agents/pushover';
-import SlackAgent from './lib/notifications/agents/slack';
-import TelegramAgent from './lib/notifications/agents/telegram';
-import WebhookAgent from './lib/notifications/agents/webhook';
-import WebPushAgent from './lib/notifications/agents/webpush';
-import { getSettings } from './lib/settings';
-import logger from './logger';
-import routes from './routes';
-import { getAppVersion } from './utils/appVersion';
 
 const API_SPEC_PATH = path.join(__dirname, '../overseerr-api.yml');
 
@@ -40,7 +46,7 @@ const handle = app.getRequestHandler();
 app
   .prepare()
   .then(async () => {
-    const dbConnection = await createConnection();
+    const dbConnection = await dataSource.initialize();
 
     // Run migrations in production
     if (process.env.NODE_ENV === 'production') {
@@ -51,6 +57,7 @@ app
 
     // Load Settings
     const settings = getSettings().load();
+    restartFlag.initializeSettings(settings.main);
 
     // Migrate library types
     if (
@@ -59,8 +66,8 @@ app
     ) {
       const userRepository = getRepository(User);
       const admin = await userRepository.findOne({
-        select: ['id', 'plexToken'],
-        order: { id: 'ASC' },
+        select: { id: true, plexToken: true },
+        where: { id: 1 },
       });
 
       if (admin) {
@@ -89,6 +96,9 @@ app
 
     // Start Jobs
     startJobs();
+
+    // Bootstrap Discovery Sliders
+    await DiscoverSlider.bootstrapSliders();
 
     const server = express();
     if (settings.main.trustProxy) {
@@ -172,6 +182,10 @@ app
       next();
     });
     server.use('/api/v1', routes);
+
+    // Do not set cookies so CDNs can cache them
+    server.use('/imageproxy', clearCookies, imageproxy);
+
     server.get('*', (req, res) => handle(req, res));
     server.use(
       (

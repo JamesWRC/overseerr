@@ -1,10 +1,9 @@
-import { ArrowCircleRightIcon } from '@heroicons/react/outline';
+import PageTitle from '@app/components/Common/PageTitle';
+import type { Undefinable } from '@app/utils/typeHelpers';
+import { ArrowRightCircleIcon } from '@heroicons/react/24/outline';
 import type { NextPage } from 'next';
 import Link from 'next/link';
-import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import PageTitle from '../components/Common/PageTitle';
-import type { Undefinable } from '../utils/typeHelpers';
 
 interface ErrorProps {
   statusCode?: number;
@@ -48,7 +47,7 @@ const Error: NextPage<ErrorProps> = ({ statusCode }) => {
       <Link href="/">
         <a className="mt-2 flex">
           {intl.formatMessage(messages.returnHome)}
-          <ArrowCircleRightIcon className="ml-2 h-6 w-6" />
+          <ArrowRightCircleIcon className="ml-2 h-6 w-6" />
         </a>
       </Link>
     </div>

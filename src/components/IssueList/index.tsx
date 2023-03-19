@@ -1,21 +1,21 @@
+import Button from '@app/components/Common/Button';
+import Header from '@app/components/Common/Header';
+import LoadingSpinner from '@app/components/Common/LoadingSpinner';
+import PageTitle from '@app/components/Common/PageTitle';
+import IssueItem from '@app/components/IssueList/IssueItem';
+import { useUpdateQueryParams } from '@app/hooks/useUpdateQueryParams';
+import globalMessages from '@app/i18n/globalMessages';
 import {
+  BarsArrowDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-  FilterIcon,
-  SortDescendingIcon,
-} from '@heroicons/react/solid';
+  FunnelIcon,
+} from '@heroicons/react/24/solid';
+import type { IssueResultsResponse } from '@server/interfaces/api/issueInterfaces';
 import { useRouter } from 'next/router';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import useSWR from 'swr';
-import { IssueResultsResponse } from '../../../server/interfaces/api/issueInterfaces';
-import Button from '../../components/Common/Button';
-import { useUpdateQueryParams } from '../../hooks/useUpdateQueryParams';
-import globalMessages from '../../i18n/globalMessages';
-import Header from '../Common/Header';
-import LoadingSpinner from '../Common/LoadingSpinner';
-import PageTitle from '../Common/PageTitle';
-import IssueItem from './IssueItem';
 
 const messages = defineMessages({
   issues: 'Issues',
@@ -32,7 +32,7 @@ enum Filter {
 
 type Sort = 'added' | 'modified';
 
-const IssueList: React.FC = () => {
+const IssueList = () => {
   const intl = useIntl();
   const router = useRouter();
   const [currentFilter, setCurrentFilter] = useState<Filter>(Filter.OPEN);
@@ -98,7 +98,7 @@ const IssueList: React.FC = () => {
         <div className="mt-2 flex flex-grow flex-col sm:flex-row lg:flex-grow-0">
           <div className="mb-2 flex flex-grow sm:mb-0 sm:mr-2 lg:flex-grow-0">
             <span className="inline-flex cursor-default items-center rounded-l-md border border-r-0 border-gray-500 bg-gray-800 px-3 text-sm text-gray-100">
-              <FilterIcon className="h-6 w-6" />
+              <FunnelIcon className="h-6 w-6" />
             </span>
             <select
               id="filter"
@@ -128,7 +128,7 @@ const IssueList: React.FC = () => {
           </div>
           <div className="mb-2 flex flex-grow sm:mb-0 lg:flex-grow-0">
             <span className="inline-flex cursor-default items-center rounded-l-md border border-r-0 border-gray-500 bg-gray-800 px-3 text-gray-100 sm:text-sm">
-              <SortDescendingIcon className="h-6 w-6" />
+              <BarsArrowDownIcon className="h-6 w-6" />
             </span>
             <select
               id="sort"
@@ -194,9 +194,9 @@ const IssueList: React.FC = () => {
                       ? pageIndex * currentPageSize + data.results.length
                       : (pageIndex + 1) * currentPageSize,
                   total: data.pageInfo.results,
-                  strong: function strong(msg) {
-                    return <span className="font-medium">{msg}</span>;
-                  },
+                  strong: (msg: React.ReactNode) => (
+                    <span className="font-medium">{msg}</span>
+                  ),
                 })}
             </p>
           </div>

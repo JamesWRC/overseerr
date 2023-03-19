@@ -1,14 +1,13 @@
-import { XCircleIcon } from '@heroicons/react/outline';
-import { SearchIcon } from '@heroicons/react/solid';
-import React from 'react';
+import useSearchInput from '@app/hooks/useSearchInput';
+import { XCircleIcon } from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon } from '@heroicons/react/24/solid';
 import { defineMessages, useIntl } from 'react-intl';
-import useSearchInput from '../../../hooks/useSearchInput';
 
 const messages = defineMessages({
   searchPlaceholder: 'Search Movies & TV',
 });
 
-const SearchInput: React.FC = () => {
+const SearchInput = () => {
   const intl = useIntl();
   const { searchValue, setSearchValue, setIsOpen, clear } = useSearchInput();
   return (
@@ -19,7 +18,7 @@ const SearchInput: React.FC = () => {
         </label>
         <div className="relative flex w-full items-center text-white focus-within:text-gray-200">
           <div className="pointer-events-none absolute inset-y-0 left-4 flex items-center">
-            <SearchIcon className="h-5 w-5" />
+            <MagnifyingGlassIcon className="h-5 w-5" />
           </div>
           <input
             id="search_field"

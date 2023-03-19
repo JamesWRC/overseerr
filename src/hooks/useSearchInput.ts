@@ -1,28 +1,12 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import type { UrlObject } from 'url';
-import { useEffect, useState, Dispatch, SetStateAction } from 'react';
-import useDebouncedState from './useDebouncedState';
+import type { Nullable } from '@app/utils/typeHelpers';
 import { useRouter } from 'next/router';
-import type { Nullable } from '../utils/typeHelpers';
+import type { Dispatch, SetStateAction } from 'react';
+import { useEffect, useState } from 'react';
+import type { UrlObject } from 'url';
+import useDebouncedState from './useDebouncedState';
 
 type Url = string | UrlObject;
-
-const extraEncodes: [RegExp, string][] = [
-  [/\(/g, '%28'],
-  [/\)/g, '%29'],
-  [/!/g, '%21'],
-  [/\*/g, '%2A'],
-];
-
-const encodeURIExtraParams = (string: string): string => {
-  let finalString = encodeURIComponent(string);
-
-  extraEncodes.forEach((encode) => {
-    finalString = finalString.replace(encode[0], encode[1]);
-  });
-
-  return finalString;
-};
 
 interface SearchObject {
   searchValue: string;
@@ -48,13 +32,13 @@ const useSearchInput = (): SearchObject => {
    * in a new route. If we are, then we only replace the history.
    */
   useEffect(() => {
-    if (debouncedValue !== '') {
+    if (debouncedValue !== '' && searchOpen) {
       if (router.pathname.startsWith('/search')) {
         router.replace({
           pathname: router.pathname,
           query: {
             ...router.query,
-            query: encodeURIExtraParams(debouncedValue),
+            query: debouncedValue,
           },
         });
       } else {
@@ -62,7 +46,7 @@ const useSearchInput = (): SearchObject => {
         router
           .push({
             pathname: '/search',
-            query: { query: encodeURIExtraParams(debouncedValue) },
+            query: { query: debouncedValue },
           })
           .then(() => window.scrollTo(0, 0));
       }
@@ -105,7 +89,7 @@ const useSearchInput = (): SearchObject => {
    * is on /search
    */
   useEffect(() => {
-    if (router.query.query !== encodeURIExtraParams(debouncedValue)) {
+    if (router.query.query !== debouncedValue) {
       setSearchValue(
         router.query.query
           ? decodeURIComponent(router.query.query as string)

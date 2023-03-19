@@ -192,7 +192,8 @@ const Arrivals: React.FC = () => {
     <>
       {weekDayElements}
       {nextWeek}
-      {overseerrPlusSettings.data?.OSPArrivalsShowMonth ? monthContent : null}
+      {/* {overseerrPlusSettings.data?.OSPArrivalsShowMonth ? monthContent : null} */}
+      {monthContent}
     </>
   );
 };

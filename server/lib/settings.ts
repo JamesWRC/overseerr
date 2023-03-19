@@ -243,10 +243,13 @@ interface JobSettings {
 export type JobId =
   | 'plex-recently-added-scan'
   | 'plex-full-scan'
+  | 'plex-watchlist-sync'
   | 'radarr-scan'
   | 'sonarr-scan'
   | 'download-sync'
-  | 'download-sync-reset';
+  | 'download-sync-reset'
+  | 'image-cache-cleanup'
+  | 'availability-sync';
 
 export interface OverseerrPlus {
   // OverseerrPlus settings variables should be prefixed with OSP to avoid future naming issues.
@@ -405,17 +408,26 @@ class Settings {
         'plex-full-scan': {
           schedule: '0 0 3 * * *',
         },
+        'plex-watchlist-sync': {
+          schedule: '0 */10 * * * *',
+        },
         'radarr-scan': {
           schedule: '0 0 4 * * *',
         },
         'sonarr-scan': {
           schedule: '0 30 4 * * *',
         },
+        'availability-sync': {
+          schedule: '0 0 5 * * *',
+        },
         'download-sync': {
           schedule: '0 * * * * *',
         },
         'download-sync-reset': {
           schedule: '0 0 1 * * *',
+        },
+        'image-cache-cleanup': {
+          schedule: '0 0 5 * * *',
         },
       },
       overseerrPlus: {
@@ -557,7 +569,7 @@ class Settings {
   }
 
   private generateApiKey(): string {
-    return Buffer.from(`${Date.now()}${randomUUID()})`).toString('base64');
+    return Buffer.from(`${Date.now()}${randomUUID()}`).toString('base64');
   }
 
   private generateVapidKeys(force = false): void {

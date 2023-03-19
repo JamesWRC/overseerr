@@ -1,18 +1,18 @@
-import { ArrowCircleRightIcon } from '@heroicons/react/outline';
+import { genreColorMap } from '@app/components/Discover/constants';
+import GenreCard from '@app/components/GenreCard';
+import Slider from '@app/components/Slider';
+import { ArrowRightCircleIcon } from '@heroicons/react/24/outline';
+import type { GenreSliderItem } from '@server/interfaces/api/discoverInterfaces';
 import Link from 'next/link';
 import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import useSWR from 'swr';
-import { GenreSliderItem } from '../../../../server/interfaces/api/discoverInterfaces';
-import GenreCard from '../../GenreCard';
-import Slider from '../../Slider';
-import { genreColorMap } from '../constants';
 
 const messages = defineMessages({
   moviegenres: 'Movie Genres',
 });
 
-const MovieGenreSlider: React.FC = () => {
+const MovieGenreSlider = () => {
   const intl = useIntl();
   const { data, error } = useSWR<GenreSliderItem[]>(
     `/api/v1/discover/genreslider/movie`,
@@ -28,7 +28,7 @@ const MovieGenreSlider: React.FC = () => {
         <Link href="/discover/movies/genres">
           <a className="slider-title">
             <span>{intl.formatMessage(messages.moviegenres)}</span>
-            <ArrowCircleRightIcon />
+            <ArrowRightCircleIcon />
           </a>
         </Link>
       </div>
@@ -43,7 +43,7 @@ const MovieGenreSlider: React.FC = () => {
             image={`https://image.tmdb.org/t/p/w1280_filter(duotone,${
               genreColorMap[genre.id] ?? genreColorMap[0]
             })${genre.backdrops[4]}`}
-            url={`/discover/movies/genre/${genre.id}`}
+            url={`/discover/movies?genre=${genre.id}`}
           />
         ))}
         placeholder={<GenreCard.Placeholder />}

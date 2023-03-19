@@ -1,26 +1,25 @@
-import { SaveIcon } from '@heroicons/react/outline';
+import Button from '@app/components/Common/Button';
+import LoadingSpinner from '@app/components/Common/LoadingSpinner';
+import NotificationTypeSelector, {
+  ALL_NOTIFICATIONS,
+} from '@app/components/NotificationTypeSelector';
+import { useUser } from '@app/hooks/useUser';
+import globalMessages from '@app/i18n/globalMessages';
+import { ArrowDownOnSquareIcon } from '@heroicons/react/24/outline';
+import type { UserSettingsNotificationsResponse } from '@server/interfaces/api/userSettingsInterfaces';
 import axios from 'axios';
 import { Form, Formik } from 'formik';
 import { useRouter } from 'next/router';
-import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useToasts } from 'react-toast-notifications';
 import useSWR, { mutate } from 'swr';
-import { UserSettingsNotificationsResponse } from '../../../../../server/interfaces/api/userSettingsInterfaces';
-import { useUser } from '../../../../hooks/useUser';
-import globalMessages from '../../../../i18n/globalMessages';
-import Button from '../../../Common/Button';
-import LoadingSpinner from '../../../Common/LoadingSpinner';
-import NotificationTypeSelector, {
-  ALL_NOTIFICATIONS,
-} from '../../../NotificationTypeSelector';
 
 const messages = defineMessages({
   webpushsettingssaved: 'Web push notification settings saved successfully!',
   webpushsettingsfailed: 'Web push notification settings failed to save.',
 });
 
-const UserWebPushSettings: React.FC = () => {
+const UserWebPushSettings = () => {
   const intl = useIntl();
   const { addToast } = useToasts();
   const router = useRouter();
@@ -104,7 +103,7 @@ const UserWebPushSettings: React.FC = () => {
                     type="submit"
                     disabled={isSubmitting || !isValid}
                   >
-                    <SaveIcon />
+                    <ArrowDownOnSquareIcon />
                     <span>
                       {isSubmitting
                         ? intl.formatMessage(globalMessages.saving)

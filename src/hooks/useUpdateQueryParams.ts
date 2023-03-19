@@ -1,5 +1,6 @@
-import { NextRouter, useRouter } from 'next/router';
-import { ParsedUrlQuery } from 'querystring';
+import type { NextRouter } from 'next/router';
+import { useRouter } from 'next/router';
+import type { ParsedUrlQuery } from 'querystring';
 import { useCallback } from 'react';
 
 type UseQueryParamReturnedFunction = (
@@ -125,6 +126,23 @@ export const useUpdateQueryParams = (
       const query = {
         ...filter,
         [key]: value,
+      };
+      updateQueryParams(query, 'replace');
+    },
+    [filter, updateQueryParams]
+  );
+};
+
+export const useBatchUpdateQueryParams = (
+  filter: ParsedUrlQuery
+): ((items: Record<string, string | undefined>) => void) => {
+  const updateQueryParams = useQueryParams();
+
+  return useCallback(
+    (items: Record<string, string | undefined>) => {
+      const query = {
+        ...filter,
+        ...items,
       };
       updateQueryParams(query, 'replace');
     },

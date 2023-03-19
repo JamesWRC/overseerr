@@ -1,18 +1,24 @@
-import { ArrowCircleRightIcon } from '@heroicons/react/outline';
-import Link from 'next/link';
-import React, { useEffect } from 'react';
-import useSWRInfinite from 'swr/infinite';
-import { MediaStatus } from '../../../server/constants/media';
+import ShowMoreCard from '@app/components/MediaSlider/ShowMoreCard';
+import PersonCard from '@app/components/PersonCard';
+import Slider from '@app/components/Slider';
+import TitleCard from '@app/components/TitleCard';
+import useSettings from '@app/hooks/useSettings';
+import { ArrowRightCircleIcon } from '@heroicons/react/24/outline';
+import { MediaStatus } from '@server/constants/media';
 import type {
   MovieResult,
   PersonResult,
   TvResult
-} from '../../../server/models/Search';
-import useSettings from '../../hooks/useSettings';
-import PersonCard from '../PersonCard';
-import Slider from '../Slider';
-import TitleCard from '../TitleCard';
-import ShowMoreCard from './ShowMoreCard';
+} from '@server/models/Search';
+
+//import PersonCard from '../PersonCard';
+//import Slider from '../Slider';
+//import TitleCard from '../TitleCard';
+//import ShowMoreCard from './ShowMoreCard';
+
+import Link from 'next/link';
+import { useEffect } from 'react';
+import useSWRInfinite from 'swr/infinite';
 
 interface MixedResult {
   page: number;
@@ -27,15 +33,19 @@ interface MediaSliderProps {
   linkUrl?: string;
   sliderKey: string;
   hideWhenEmpty?: boolean;
+  extraParams?: string;
+  onNewTitles?: (titleCount: number) => void;
 }
 
-const MediaSlider: React.FC<MediaSliderProps> = ({
+const MediaSlider = ({
   title,
   url,
   linkUrl,
+  extraParams,
   sliderKey,
   hideWhenEmpty = false,
-}) => {
+  onNewTitles,
+}: MediaSliderProps) => {
   const settings = useSettings();
   const { data, error, setSize, size } = useSWRInfinite<MixedResult>(
     (pageIndex: number, previousPageData: MixedResult | null) => {
@@ -43,7 +53,9 @@ const MediaSlider: React.FC<MediaSliderProps> = ({
         return null;
       }
 
-      return `${url}?page=${pageIndex + 1}`;
+      return `${url}?page=${pageIndex + 1}${
+        extraParams ? `&${extraParams}` : ''
+      }`;
     },
     {
       initialSize: 2,
@@ -72,7 +84,13 @@ const MediaSlider: React.FC<MediaSliderProps> = ({
     ) {
       setSize(size + 1);
     }
-  }, [titles, setSize, size, data]);
+
+    if (onNewTitles) {
+      // We aren't reporting all titles. We just want to know if there are any titles
+      // at all for our purposes.
+      onNewTitles(titles.length);
+    }
+  }, [titles, setSize, size, data, onNewTitles]);
 
   if (hideWhenEmpty && (data?.[0].results ?? []).length === 0) {
     return null;
@@ -137,9 +155,9 @@ const MediaSlider: React.FC<MediaSliderProps> = ({
       <div className="slider-header">
         {linkUrl ? (
           <Link href={linkUrl}>
-            <a className="slider-title">
-              <span>{title}</span>
-              <ArrowCircleRightIcon />
+            <a className="slider-title min-w-0 pr-16">
+              <span className="truncate">{title}</span>
+              <ArrowRightCircleIcon />
             </a>
           </Link>
         ) : (

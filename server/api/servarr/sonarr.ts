@@ -1,6 +1,7 @@
-import logger from '../../logger';
+import logger from '@server/logger';
 import ServarrBase from './base';
-interface SonarrSeason {
+export interface SonarrSeason {
+
   seasonNumber: number;
   monitored: boolean;
   statistics?: {
@@ -11,6 +12,21 @@ interface SonarrSeason {
     sizeOnDisk: number;
     percentOfEpisodes: number;
   };
+}
+interface EpisodeResult {
+  seriesId: number;
+  episodeFileId: number;
+  seasonNumber: number;
+  episodeNumber: number;
+  title: string;
+  airDate: string;
+  airDateUtc: string;
+  overview: string;
+  hasFile: boolean;
+  monitored: boolean;
+  absoluteEpisodeNumber: number;
+  unverifiedSceneNumbering: boolean;
+  id: number;
 }
 
 export interface SonarrSeries {
@@ -97,7 +113,11 @@ export interface LanguageProfile {
   name: string;
 }
 
-class SonarrAPI extends ServarrBase<{ seriesId: number; episodeId: number }> {
+class SonarrAPI extends ServarrBase<{
+  seriesId: number;
+  episodeId: number;
+  episode: EpisodeResult;
+}> {
   constructor({ url, apiKey }: { url: string; apiKey: string }) {
     super({ url, apiKey, apiName: 'Sonarr', cacheName: 'sonarr' });
   }

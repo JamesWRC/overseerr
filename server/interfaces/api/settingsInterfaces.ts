@@ -52,6 +52,11 @@ export interface CacheItem {
   };
 }
 
+export interface CacheResponse {
+  apiCaches: CacheItem[];
+  imageCache: Record<'tmdb', { size: number; imageCount: number }>;
+}
+
 export interface StatusResponse {
   version: string;
   commitTag: string;
@@ -61,4 +66,5 @@ export interface StatusResponse {
   commitsBehind: number;
   plusUpdateAvailable: boolean;
   plusCommitsBehind: number;
+  restartRequired: boolean;
 }

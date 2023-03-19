@@ -1,23 +1,23 @@
+import Button from '@app/components/Common/Button';
+import Header from '@app/components/Common/Header';
+import LoadingSpinner from '@app/components/Common/LoadingSpinner';
+import PageTitle from '@app/components/Common/PageTitle';
+import RequestItem from '@app/components/RequestList/RequestItem';
+import { useUpdateQueryParams } from '@app/hooks/useUpdateQueryParams';
+import { useUser } from '@app/hooks/useUser';
+import globalMessages from '@app/i18n/globalMessages';
 import {
+  BarsArrowDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-  FilterIcon,
-  SortDescendingIcon,
-} from '@heroicons/react/solid';
+  FunnelIcon,
+} from '@heroicons/react/24/solid';
+import type { RequestResultsResponse } from '@server/interfaces/api/requestInterfaces';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import useSWR from 'swr';
-import type { RequestResultsResponse } from '../../../server/interfaces/api/requestInterfaces';
-import { useUpdateQueryParams } from '../../hooks/useUpdateQueryParams';
-import { useUser } from '../../hooks/useUser';
-import globalMessages from '../../i18n/globalMessages';
-import Button from '../Common/Button';
-import Header from '../Common/Header';
-import LoadingSpinner from '../Common/LoadingSpinner';
-import PageTitle from '../Common/PageTitle';
-import RequestItem from './RequestItem';
 
 const messages = defineMessages({
   requests: 'Requests',
@@ -33,16 +33,18 @@ enum Filter {
   PROCESSING = 'processing',
   AVAILABLE = 'available',
   UNAVAILABLE = 'unavailable',
+  FAILED = 'failed',
 }
 
 type Sort = 'added' | 'modified';
 
-const RequestList: React.FC = () => {
+const RequestList = () => {
   const router = useRouter();
   const intl = useIntl();
   const { user } = useUser({
     id: Number(router.query.userId),
   });
+  const { user: currentUser } = useUser();
   const [currentFilter, setCurrentFilter] = useState<Filter>(Filter.PENDING);
   const [currentSort, setCurrentSort] = useState<Sort>('added');
   const [currentPageSize, setCurrentPageSize] = useState<number>(10);
@@ -59,7 +61,11 @@ const RequestList: React.FC = () => {
     `/api/v1/request?take=${currentPageSize}&skip=${
       pageIndex * currentPageSize
     }&filter=${currentFilter}&sort=${currentSort}${
-      router.query.userId ? `&requestedBy=${router.query.userId}` : ''
+      router.pathname.startsWith('/profile')
+        ? `&requestedBy=${currentUser?.id}`
+        : router.query.userId
+        ? `&requestedBy=${router.query.userId}`
+        : ''
     }`
   );
 
@@ -115,7 +121,11 @@ const RequestList: React.FC = () => {
       <div className="mb-4 flex flex-col justify-between lg:flex-row lg:items-end">
         <Header
           subtext={
-            router.query.userId ? (
+            router.pathname.startsWith('/profile') ? (
+              <Link href={`/profile`}>
+                <a className="hover:underline">{currentUser?.displayName}</a>
+              </Link>
+            ) : router.query.userId ? (
               <Link href={`/users/${user?.id}`}>
                 <a className="hover:underline">{user?.displayName}</a>
               </Link>
@@ -129,7 +139,7 @@ const RequestList: React.FC = () => {
         <div className="mt-2 flex flex-grow flex-col sm:flex-row lg:flex-grow-0">
           <div className="mb-2 flex flex-grow sm:mb-0 sm:mr-2 lg:flex-grow-0">
             <span className="inline-flex cursor-default items-center rounded-l-md border border-r-0 border-gray-500 bg-gray-800 px-3 text-sm text-gray-100">
-              <FilterIcon className="h-6 w-6" />
+              <FunnelIcon className="h-6 w-6" />
             </span>
             <select
               id="filter"
@@ -158,6 +168,9 @@ const RequestList: React.FC = () => {
               <option value="processing">
                 {intl.formatMessage(globalMessages.processing)}
               </option>
+              <option value="failed">
+                {intl.formatMessage(globalMessages.failed)}
+              </option>
               <option value="available">
                 {intl.formatMessage(globalMessages.available)}
               </option>
@@ -168,7 +181,7 @@ const RequestList: React.FC = () => {
           </div>
           <div className="mb-2 flex flex-grow sm:mb-0 lg:flex-grow-0">
             <span className="inline-flex cursor-default items-center rounded-l-md border border-r-0 border-gray-500 bg-gray-800 px-3 text-gray-100 sm:text-sm">
-              <SortDescendingIcon className="h-6 w-6" />
+              <BarsArrowDownIcon className="h-6 w-6" />
             </span>
             <select
               id="sort"
@@ -238,9 +251,9 @@ const RequestList: React.FC = () => {
                       ? pageIndex * currentPageSize + data.results.length
                       : (pageIndex + 1) * currentPageSize,
                   total: data.pageInfo.results,
-                  strong: function strong(msg) {
-                    return <span className="font-medium">{msg}</span>;
-                  },
+                  strong: (msg: React.ReactNode) => (
+                    <span className="font-medium">{msg}</span>
+                  ),
                 })}
             </p>
           </div>

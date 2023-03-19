@@ -1,30 +1,36 @@
+import VersionStatus from '@app/components/Layout/VersionStatus';
+import useClickOutside from '@app/hooks/useClickOutside';
+import { Permission, useUser } from '@app/hooks/useUser';
+import { Transition } from '@headlessui/react';
 import {
   ClockIcon,
-  CloudDownloadIcon,
   CogIcon,
-  ExclamationIcon,
+  ExclamationTriangleIcon,
+  FilmIcon,
   SparklesIcon,
+  TvIcon,
   UsersIcon,
-  XIcon,
-} from '@heroicons/react/outline';
+  XMarkIcon,
+  CloudArrowDownIcon,
+  HeartIcon,
+} from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import React, { ReactNode, useRef } from 'react';
+import { Fragment, useRef } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import useSWR from 'swr';
-import { OverseerrPlus } from '../../../../server/lib/settings';
-import useClickOutside from '../../../hooks/useClickOutside';
-import { Permission, useUser } from '../../../hooks/useUser';
-import Transition from '../../Transition';
-import VersionStatus from '../VersionStatus';
+// import useSWR from 'swr';
+// import { OverseerrPlus } from '../../../../server/lib/settings';
 
-const messages = defineMessages({
+export const menuMessages = defineMessages({
   dashboard: 'Discover',
+  browsemovies: 'Movies',
+  browsetv: 'Series',
   requests: 'Requests',
   arrivals: 'Arrivals',
   issues: 'Issues',
   users: 'Users',
   settings: 'Settings',
+  supportServers: 'Support'
 });
 
 interface SidebarProps {
@@ -34,12 +40,13 @@ interface SidebarProps {
 
 interface SidebarLinkProps {
   href: string;
-  svgIcon: ReactNode;
-  messagesKey: keyof typeof messages;
+  svgIcon: React.ReactNode;
+  messagesKey: keyof typeof menuMessages;
   activeRegExp: RegExp;
   as?: string;
   requiredPermission?: Permission | Permission[];
   permissionType?: 'and' | 'or';
+  dataTestId?: string;
 }
 
 const SidebarLinks: SidebarLinkProps[] = [
@@ -47,7 +54,19 @@ const SidebarLinks: SidebarLinkProps[] = [
     href: '/',
     messagesKey: 'dashboard',
     svgIcon: <SparklesIcon className="mr-3 h-6 w-6" />,
-    activeRegExp: /^\/(discover\/?(movies|tv)?)?$/,
+    activeRegExp: /^\/(discover\/?)?$/,
+  },
+  {
+    href: '/discover/movies',
+    messagesKey: 'browsemovies',
+    svgIcon: <FilmIcon className="mr-3 h-6 w-6" />,
+    activeRegExp: /^\/discover\/movies$/,
+  },
+  {
+    href: '/discover/tv',
+    messagesKey: 'browsetv',
+    svgIcon: <TvIcon className="mr-3 h-6 w-6" />,
+    activeRegExp: /^\/discover\/tv$/,
   },
   {
     href: '/requests',
@@ -59,7 +78,7 @@ const SidebarLinks: SidebarLinkProps[] = [
     href: '/issues',
     messagesKey: 'issues',
     svgIcon: (
-      <ExclamationIcon className="mr-3 h-6 w-6 text-gray-300 transition duration-150 ease-in-out group-hover:text-gray-100 group-focus:text-gray-300" />
+      <ExclamationTriangleIcon className="mr-3 h-6 w-6 text-gray-300 transition duration-150 ease-in-out group-hover:text-gray-100 group-focus:text-gray-300" />
     ),
     activeRegExp: /^\/issues/,
     requiredPermission: [
@@ -75,37 +94,42 @@ const SidebarLinks: SidebarLinkProps[] = [
     svgIcon: <UsersIcon className="mr-3 h-6 w-6" />,
     activeRegExp: /^\/users/,
     requiredPermission: Permission.MANAGE_USERS,
+    dataTestId: 'sidebar-menu-users',
   },
   {
     href: '/settings',
     messagesKey: 'settings',
     svgIcon: <CogIcon className="mr-3 h-6 w-6" />,
     activeRegExp: /^\/settings/,
-    requiredPermission: Permission.MANAGE_SETTINGS,
+    requiredPermission: Permission.ADMIN,
+    dataTestId: 'sidebar-menu-settings',
+  },
+  {
+    href: '/support-servers',
+    messagesKey: 'supportServers',
+    svgIcon: <HeartIcon className="mr-3 h-6 w-6" />,
+    activeRegExp: /^\/settings/,
+    requiredPermission: Permission.ADMIN,
+    dataTestId: 'sidebar-menu-support',
   },
 ];
 
-const Sidebar: React.FC<SidebarProps> = ({ open, setClosed }) => {
+const Sidebar = ({ open, setClosed }: SidebarProps) => {
   const navRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const intl = useIntl();
   const { hasPermission } = useUser();
   useClickOutside(navRef, () => setClosed());
 
-  // Get overseerrPlus settings
-  const overseerrPlusSettings = useSWR<OverseerrPlus>(() => {
-    return '/api/v1/settings/overseerrPlus';
-  });
-
   // Check if ArrivalsTab is enabled and arrivals has been added, if not add it at position.
   if (
-    overseerrPlusSettings.data?.OSPShowArrivalsTab &&
+    // getSettings().overseerrPlus.OSPShowArrivalsTab &&
     !SidebarLinks.some((sidebar) => sidebar.messagesKey === 'arrivals')
   ) {
     const arrivalsTab: SidebarLinkProps = {
       href: '/arrivals',
       messagesKey: 'arrivals',
-      svgIcon: <CloudDownloadIcon className="mr-3 h-6 w-6" />,
+      svgIcon: <CloudArrowDownIcon className="mr-3 h-6 w-6" />,
       activeRegExp: /^\/arrivals/,
     };
     SidebarLinks.splice(2, 0, arrivalsTab);
@@ -114,9 +138,10 @@ const Sidebar: React.FC<SidebarProps> = ({ open, setClosed }) => {
   return (
     <>
       <div className="lg:hidden">
-        <Transition show={open}>
+        <Transition as={Fragment} show={open}>
           <div className="fixed inset-0 z-40 flex">
-            <Transition
+            <Transition.Child
+              as="div"
               enter="transition-opacity ease-linear duration-300"
               enterFrom="opacity-0"
               enterTo="opacity-100"
@@ -127,29 +152,30 @@ const Sidebar: React.FC<SidebarProps> = ({ open, setClosed }) => {
               <div className="fixed inset-0">
                 <div className="absolute inset-0 bg-gray-900 opacity-90"></div>
               </div>
-            </Transition>
-            <Transition
-              enter="transition ease-in-out duration-300 transform"
+            </Transition.Child>
+            <Transition.Child
+              as="div"
+              enter="transition-transform ease-in-out duration-300"
               enterFrom="-translate-x-full"
               enterTo="translate-x-0"
-              leave="transition ease-in-out duration-300 transform"
+              leave="transition-transform ease-in-out duration-300"
               leaveFrom="translate-x-0"
               leaveTo="-translate-x-full"
             >
               <>
-                <div className="sidebar relative flex w-full max-w-xs flex-1 flex-col bg-gray-800">
-                  <div className="sidebar-close-button absolute top-0 right-0 -mr-14 p-1">
+                <div className="sidebar relative flex h-full w-full max-w-xs flex-1 flex-col bg-gray-800">
+                  <div className="sidebar-close-button absolute right-0 -mr-14 p-1">
                     <button
                       className="flex h-12 w-12 items-center justify-center rounded-full focus:bg-gray-600 focus:outline-none"
                       aria-label="Close sidebar"
                       onClick={() => setClosed()}
                     >
-                      <XIcon className="h-6 w-6 text-white" />
+                      <XMarkIcon className="h-6 w-6 text-white" />
                     </button>
                   </div>
                   <div
                     ref={navRef}
-                    className="flex h-0 flex-1 flex-col overflow-y-auto pt-8 pb-8 sm:pb-4"
+                    className="flex flex-1 flex-col overflow-y-auto pt-8 pb-8 sm:pb-4"
                   >
                     <div className="flex flex-shrink-0 items-center px-2">
                       <span className="px-4 text-xl text-gray-50">
@@ -162,8 +188,8 @@ const Sidebar: React.FC<SidebarProps> = ({ open, setClosed }) => {
                       {SidebarLinks.filter((link) =>
                         link.requiredPermission
                           ? hasPermission(link.requiredPermission, {
-                              type: link.permissionType ?? 'and',
-                            })
+                            type: link.permissionType ?? 'and',
+                          })
                           : true
                       ).map((sidebarLink) => {
                         return (
@@ -182,18 +208,18 @@ const Sidebar: React.FC<SidebarProps> = ({ open, setClosed }) => {
                               role="button"
                               tabIndex={0}
                               className={`flex items-center rounded-md px-2 py-2 text-base font-medium leading-6 text-white transition duration-150 ease-in-out focus:outline-none
-                                ${
-                                  router.pathname.match(
-                                    sidebarLink.activeRegExp
-                                  )
-                                    ? 'bg-gradient-to-br from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500'
-                                    : 'hover:bg-gray-700 focus:bg-gray-700'
+                                ${router.pathname.match(
+                                sidebarLink.activeRegExp
+                              )
+                                  ? 'bg-gradient-to-br from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500'
+                                  : 'hover:bg-gray-700 focus:bg-gray-700'
                                 }
                               `}
+                              data-testid={`${sidebarLink.dataTestId}-mobile`}
                             >
                               {sidebarLink.svgIcon}
                               {intl.formatMessage(
-                                messages[sidebarLink.messagesKey]
+                                menuMessages[sidebarLink.messagesKey]
                               )}
                             </a>
                           </Link>
@@ -211,7 +237,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, setClosed }) => {
                   {/* <!-- Force sidebar to shrink to fit close icon --> */}
                 </div>
               </>
-            </Transition>
+            </Transition.Child>
           </div>
         </Transition>
       </div>
@@ -231,8 +257,8 @@ const Sidebar: React.FC<SidebarProps> = ({ open, setClosed }) => {
                 {SidebarLinks.filter((link) =>
                   link.requiredPermission
                     ? hasPermission(link.requiredPermission, {
-                        type: link.permissionType ?? 'and',
-                      })
+                      type: link.permissionType ?? 'and',
+                    })
                     : true
                 ).map((sidebarLink) => {
                   return (
@@ -243,17 +269,19 @@ const Sidebar: React.FC<SidebarProps> = ({ open, setClosed }) => {
                     >
                       <a
                         className={`group flex items-center rounded-md px-2 py-2 text-lg font-medium leading-6 text-white transition duration-150 ease-in-out focus:outline-none
-                                ${
-                                  router.pathname.match(
-                                    sidebarLink.activeRegExp
-                                  )
-                                    ? 'bg-gradient-to-br from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500'
-                                    : 'hover:bg-gray-700 focus:bg-gray-700'
-                                }
+                                ${router.pathname.match(
+                          sidebarLink.activeRegExp
+                        )
+                            ? 'bg-gradient-to-br from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500'
+                            : 'hover:bg-gray-700 focus:bg-gray-700'
+                          }
                               `}
+                        data-testid={sidebarLink.dataTestId}
                       >
                         {sidebarLink.svgIcon}
-                        {intl.formatMessage(messages[sidebarLink.messagesKey])}
+                        {intl.formatMessage(
+                          menuMessages[sidebarLink.messagesKey]
+                        )}
                       </a>
                     </Link>
                   );

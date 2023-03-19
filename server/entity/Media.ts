@@ -1,21 +1,22 @@
+import RadarrAPI from '@server/api/servarr/radarr';
+import SonarrAPI from '@server/api/servarr/sonarr';
+import { MediaStatus, MediaType } from '@server/constants/media';
+import { getRepository } from '@server/datasource';
+import type { DownloadingItem } from '@server/lib/downloadtracker';
+import downloadTracker from '@server/lib/downloadtracker';
+import { getSettings } from '@server/lib/settings';
+import logger from '@server/logger';
 import {
   AfterLoad,
   Column,
   CreateDateColumn,
   Entity,
-  getRepository,
   In,
   Index,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import RadarrAPI from '../api/servarr/radarr';
-import SonarrAPI from '../api/servarr/sonarr';
-import { MediaStatus, MediaType } from '../constants/media';
-import downloadTracker, { DownloadingItem } from '../lib/downloadtracker';
-import { getSettings } from '../lib/settings';
-import logger from '../logger';
 import Issue from './Issue';
 import { MediaRequest } from './MediaRequest';
 import Season from './Season';
@@ -36,7 +37,7 @@ class Media {
       }
 
       const media = await mediaRepository.find({
-        tmdbId: In(finalIds),
+        where: { tmdbId: In(finalIds) },
       });
 
       return media;
@@ -55,10 +56,10 @@ class Media {
     try {
       const media = await mediaRepository.findOne({
         where: { tmdbId: id, mediaType },
-        relations: ['requests', 'issues'],
+        relations: { requests: true, issues: true },
       });
 
-      return media;
+      return media ?? undefined;
     } catch (e) {
       logger.error(e.message);
       return undefined;
@@ -113,29 +114,29 @@ class Media {
   @Column({ type: 'datetime', nullable: true })
   public mediaAddedAt: Date;
 
-  @Column({ nullable: true })
-  public serviceId?: number;
+  @Column({ nullable: true, type: 'int' })
+  public serviceId?: number | null;
 
-  @Column({ nullable: true })
-  public serviceId4k?: number;
+  @Column({ nullable: true, type: 'int' })
+  public serviceId4k?: number | null;
 
-  @Column({ nullable: true })
-  public externalServiceId?: number;
+  @Column({ nullable: true, type: 'int' })
+  public externalServiceId?: number | null;
 
-  @Column({ nullable: true })
-  public externalServiceId4k?: number;
+  @Column({ nullable: true, type: 'int' })
+  public externalServiceId4k?: number | null;
 
-  @Column({ nullable: true })
-  public externalServiceSlug?: string;
+  @Column({ nullable: true, type: 'varchar' })
+  public externalServiceSlug?: string | null;
 
-  @Column({ nullable: true })
-  public externalServiceSlug4k?: string;
+  @Column({ nullable: true, type: 'varchar' })
+  public externalServiceSlug4k?: string | null;
 
-  @Column({ nullable: true })
-  public ratingKey?: string;
+  @Column({ nullable: true, type: 'varchar' })
+  public ratingKey?: string | null;
 
-  @Column({ nullable: true })
-  public ratingKey4k?: string;
+  @Column({ nullable: true, type: 'varchar' })
+  public ratingKey4k?: string | null;
 
   public serviceUrl?: string;
   public serviceUrl4k?: string;
@@ -144,6 +145,9 @@ class Media {
 
   public plexUrl?: string;
   public plexUrl4k?: string;
+
+  public iOSPlexUrl?: string;
+  public iOSPlexUrl4k?: string;
 
   public tautulliUrl?: string;
   public tautulliUrl4k?: string;
@@ -164,6 +168,8 @@ class Media {
         this.ratingKey
       }`;
 
+      this.iOSPlexUrl = `plex://preplay/?metadataKey=%2Flibrary%2Fmetadata%2F${this.ratingKey}&server=${machineId}`;
+
       if (tautulliUrl) {
         this.tautulliUrl = `${tautulliUrl}/info?rating_key=${this.ratingKey}`;
       }
@@ -175,6 +181,8 @@ class Media {
       }#!/server/${machineId}/details?key=%2Flibrary%2Fmetadata%2F${
         this.ratingKey4k
       }`;
+
+      this.iOSPlexUrl4k = `plex://preplay/?metadataKey=%2Flibrary%2Fmetadata%2F${this.ratingKey4k}&server=${machineId}`;
 
       if (tautulliUrl) {
         this.tautulliUrl4k = `${tautulliUrl}/info?rating_key=${this.ratingKey4k}`;
@@ -252,7 +260,9 @@ class Media {
     if (this.mediaType === MediaType.MOVIE) {
       if (
         this.externalServiceId !== undefined &&
-        this.serviceId !== undefined
+        this.externalServiceId !== null &&
+        this.serviceId !== undefined &&
+        this.serviceId !== null
       ) {
         this.downloadStatus = downloadTracker.getMovieProgress(
           this.serviceId,
@@ -262,7 +272,9 @@ class Media {
 
       if (
         this.externalServiceId4k !== undefined &&
-        this.serviceId4k !== undefined
+        this.externalServiceId4k !== null &&
+        this.serviceId4k !== undefined &&
+        this.serviceId4k !== null
       ) {
         this.downloadStatus4k = downloadTracker.getMovieProgress(
           this.serviceId4k,
@@ -274,7 +286,9 @@ class Media {
     if (this.mediaType === MediaType.TV) {
       if (
         this.externalServiceId !== undefined &&
-        this.serviceId !== undefined
+        this.externalServiceId !== null &&
+        this.serviceId !== undefined &&
+        this.serviceId !== null
       ) {
         this.downloadStatus = downloadTracker.getSeriesProgress(
           this.serviceId,
@@ -284,7 +298,9 @@ class Media {
 
       if (
         this.externalServiceId4k !== undefined &&
-        this.serviceId4k !== undefined
+        this.externalServiceId4k !== null &&
+        this.serviceId4k !== undefined &&
+        this.serviceId4k !== null
       ) {
         this.downloadStatus4k = downloadTracker.getSeriesProgress(
           this.serviceId4k,

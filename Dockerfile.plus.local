@@ -1,5 +1,5 @@
 # FROM sctx/overseerr:latest
-FROM node:16.14-alpine
+FROM node:16.17-alpine
 
 ARG COMMIT_TAG
 ENV COMMIT_TAG=${COMMIT_TAG}
@@ -14,10 +14,15 @@ ENV PLUS_BUILD_ENV=${PLUS_BUILD_ENV}
 # Install git
 RUN apk add --no-cache git
 
+# Install build dependencies for bcrypt as this package often fails to install
+# Not to be used in production as it will bloat the image
+RUN apk add --no-cache make python3 && ln -sf python3 /usr/bin/python
+
 COPY . /app
 WORKDIR /app
 
-RUN yarn    
+RUN rm -rf node_modules
+RUN yarn
 
 # RUN yarn build
 CMD echo "{\"commitTag\": \"${COMMIT_TAG}\", \"plusCommitTag\": \"${PLUS_COMMIT_TAG}\"}" > committag.json && yarn dev

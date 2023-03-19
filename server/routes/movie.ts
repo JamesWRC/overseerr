@@ -1,15 +1,16 @@
+import RottenTomatoes from '@server/api/rottentomatoes';
+import TheMovieDb from '@server/api/themoviedb';
+import { MediaType } from '@server/constants/media';
+import Media from '@server/entity/Media';
+import logger from '@server/logger';
+import { mapMovieDetails } from '@server/models/Movie';
+import { mapMovieResult } from '@server/models/Search';
 import { Router } from 'express';
 import { TmdbMovieDetails } from '../../server/api/themoviedb/interfaces';
-import RottenTomatoes from '../api/rottentomatoes';
 import RadarrAPI from '../api/servarr/radarr';
-import TheMovieDb from '../api/themoviedb';
-import { MediaType } from '../constants/media';
-import Media from '../entity/Media';
 import { getSettings } from '../lib/settings';
-import logger from '../logger';
-import { mapMovieDetails } from '../models/Movie';
 import type { MovieDetails } from '../models/Movie';
-import { mapMovieResult } from '../models/Search';
+
 
 const movieRoutes = Router();
 
@@ -35,6 +36,10 @@ movieRoutes.get('/calendar', async (req, res, next) => {
     // Search through all radarr servers
     for (const radarrInstance of radarrSettings) {
 
+      // Skip the 4k server if its the same server. IE the 4k server is the same server but with the 4k quality profile applied.
+      if (radarrSettings.filter(e => (e.hostname === radarrInstance.hostname && e.port === radarrInstance.port && radarrInstance.is4k)).length > 0) {
+        continue
+      }
       // Get radarr instance
       const radarr = new RadarrAPI({
         apiKey: radarrInstance.apiKey,

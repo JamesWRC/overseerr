@@ -1,12 +1,14 @@
+import { MediaRequestStatus } from '@server/constants/media';
+import { getRepository } from '@server/datasource';
 import {
-  Entity,
-  PrimaryGeneratedColumn,
+  AfterRemove,
   Column,
   CreateDateColumn,
-  UpdateDateColumn,
+  Entity,
   ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
-import { MediaRequestStatus } from '../constants/media';
 import { MediaRequest } from './MediaRequest';
 
 @Entity()
@@ -33,6 +35,18 @@ class SeasonRequest {
 
   constructor(init?: Partial<SeasonRequest>) {
     Object.assign(this, init);
+  }
+
+  @AfterRemove()
+  public async handleRemoveParent(): Promise<void> {
+    const mediaRequestRepository = getRepository(MediaRequest);
+    const requestToBeDeleted = await mediaRequestRepository.findOneOrFail({
+      where: { id: this.request.id },
+    });
+
+    if (requestToBeDeleted.seasons.length === 0) {
+      await mediaRequestRepository.delete({ id: this.request.id });
+    }
   }
 }
 

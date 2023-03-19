@@ -12,7 +12,7 @@ services:
     ports:
       - 5055:5055
     volumes:
-      - .:/app:rw
+      - .:/app
       - /app/node_modules
       - /app/.next
       - ./config:/app/config

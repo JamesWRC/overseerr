@@ -665,6 +665,150 @@
       "contributions": [
         "translation"
       ]
+    },
+    {
+      "login": "sambartik",
+      "name": "Samuel Bartík",
+      "avatar_url": "https://avatars.githubusercontent.com/u/63553146?v=4",
+      "profile": "https://github.com/sambartik",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "frank-cywong",
+      "name": "Chun Yeung Wong",
+      "avatar_url": "https://avatars.githubusercontent.com/u/90653148?v=4",
+      "profile": "https://github.com/frank-cywong",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "TheMeanCanEHdian",
+      "name": "TheMeanCanEHdian",
+      "avatar_url": "https://avatars.githubusercontent.com/u/16025103?v=4",
+      "profile": "https://github.com/TheMeanCanEHdian",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "Gylesie",
+      "name": "Gylesie",
+      "avatar_url": "https://avatars.githubusercontent.com/u/86306812?v=4",
+      "profile": "https://github.com/Gylesie",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "Fhd-pro",
+      "name": "Fhd-pro",
+      "avatar_url": "https://avatars.githubusercontent.com/u/82862079?v=4",
+      "profile": "https://github.com/Fhd-pro",
+      "contributions": [
+        "translation"
+      ]
+    },
+    {
+      "login": "PovilasID",
+      "name": "PovilasID",
+      "avatar_url": "https://avatars.githubusercontent.com/u/396243?v=4",
+      "profile": "https://github.com/PovilasID",
+      "contributions": [
+        "translation"
+      ]
+    },
+    {
+      "login": "byakurau",
+      "name": "byakurau",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1811683?v=4",
+      "profile": "https://github.com/byakurau",
+      "contributions": [
+        "translation"
+      ]
+    },
+    {
+      "login": "miknii",
+      "name": "miknii",
+      "avatar_url": "https://avatars.githubusercontent.com/u/109232569?v=4",
+      "profile": "https://github.com/miknii",
+      "contributions": [
+        "translation"
+      ]
+    },
+    {
+      "login": "Eclipseop",
+      "name": "Mackenzie",
+      "avatar_url": "https://avatars.githubusercontent.com/u/5846213?v=4",
+      "profile": "https://github.com/Eclipseop",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "s0up4200",
+      "name": "soup",
+      "avatar_url": "https://avatars.githubusercontent.com/u/18177310?v=4",
+      "profile": "https://github.com/s0up4200",
+      "contributions": [
+        "doc"
+      ]
+    },
+    {
+      "login": "ceptonit",
+      "name": "ceptonit",
+      "avatar_url": "https://avatars.githubusercontent.com/u/12678743?v=4",
+      "profile": "https://github.com/ceptonit",
+      "contributions": [
+        "doc"
+      ]
+    },
+    {
+      "login": "aedelbro",
+      "name": "aedelbro",
+      "avatar_url": "https://avatars.githubusercontent.com/u/36162221?v=4",
+      "profile": "https://github.com/aedelbro",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "lunks",
+      "name": "Pedro Nascimento",
+      "avatar_url": "https://avatars.githubusercontent.com/u/91118?v=4",
+      "profile": "http://twitter.com/lunks/",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "owenvoke",
+      "name": "Owen Voke",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1899334?v=4",
+      "profile": "https://voke.dev",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "Nimelrian",
+      "name": "Sebastian K",
+      "avatar_url": "https://avatars.githubusercontent.com/u/8960836?v=4",
+      "profile": "https://github.com/Nimelrian",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "jariz",
+      "name": "jariz",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1415847?v=4",
+      "profile": "https://github.com/jariz",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "badgeTemplate": "<a href=\"#contributors-\"><img alt=\"All Contributors\" src=\"https://img.shields.io/badge/all_contributors-<%= contributors.length %>-orange.svg\"/></a>",
@@ -673,5 +817,6 @@
   "projectOwner": "sct",
   "repoType": "github",
   "repoHost": "https://github.com",
-  "skipCi": true
+  "skipCi": false,
+  "commitConvention": "angular"
 }

@@ -1,5 +1,6 @@
+import CachedImage from '@app/components/Common/CachedImage';
 import Link from 'next/link';
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 interface CompanyCardProps {
   name: string;
@@ -7,7 +8,7 @@ interface CompanyCardProps {
   url: string;
 }
 
-const CompanyCard: React.FC<CompanyCardProps> = ({ image, url, name }) => {
+const CompanyCard = ({ image, url, name }: CompanyCardProps) => {
   const [isHovered, setHovered] = useState(false);
 
   return (
@@ -30,11 +31,15 @@ const CompanyCard: React.FC<CompanyCardProps> = ({ image, url, name }) => {
         role="link"
         tabIndex={0}
       >
-        <img
-          src={image}
-          alt={name}
-          className="relative z-40 max-h-full max-w-full"
-        />
+        <div className="relative h-full w-full">
+          <CachedImage
+            src={image}
+            alt={name}
+            className="relative z-40 h-full w-full"
+            layout="fill"
+            objectFit="contain"
+          />
+        </div>
         <div
           className={`absolute bottom-0 left-0 right-0 z-0 h-12 rounded-b-xl bg-gradient-to-t ${
             isHovered ? 'from-gray-800' : 'from-gray-900'
