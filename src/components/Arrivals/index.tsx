@@ -31,7 +31,7 @@ const messages = defineMessages({
 const Arrivals: React.FC = () => {
   // Get overseerrPlus settings
   const overseerrPlusSettings = useSWR<OverseerrPlus>(() => {
-    return '/api/v1/settings/overseerrPlus';
+    return '/api/v1/overseerrPlus/settings';
   });
   const intl = useIntl();
 
@@ -192,8 +192,7 @@ const Arrivals: React.FC = () => {
     <>
       {weekDayElements}
       {nextWeek}
-      {/* {overseerrPlusSettings.data?.OSPArrivalsShowMonth ? monthContent : null} */}
-      {monthContent}
+      {overseerrPlusSettings.data?.showMonthArrival ? monthContent : null}
     </>
   );
 };

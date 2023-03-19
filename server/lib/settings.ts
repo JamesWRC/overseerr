@@ -253,8 +253,12 @@ export type JobId =
 
 export interface OverseerrPlus {
   // OverseerrPlus settings variables should be prefixed with OSP to avoid future naming issues.
-  OSPShowArrivalsTab: boolean;
-  OSPArrivalsShowMonth: boolean;
+  showArrivalsTab: boolean;
+  showMonthArrival: boolean;
+  showSupportTab: boolean;
+  stripeOneOffLink: string;
+  stripeRecurringLink: string;
+
 }
 
 interface AllSettings {
@@ -431,8 +435,11 @@ class Settings {
         },
       },
       overseerrPlus: {
-        OSPShowArrivalsTab: false,
-        OSPArrivalsShowMonth: false,
+        showArrivalsTab: false,
+        showMonthArrival: false,
+        showSupportTab: false,
+        stripeOneOffLink: "",
+        stripeRecurringLink: "",
       }
     };
     if (initialSettings) {

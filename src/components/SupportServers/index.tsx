@@ -1,28 +1,36 @@
 import React from 'react';
 import { CheckIcon } from '@heroicons/react/20/solid'
+import useSWR from 'swr';
+import { OverseerrPlus } from '@server/lib/settings';
 
-const tiers = [
-  {
-    name: '',
-    id: 'tier-one-off',
-    href: process.env.STRIPE_ONE_OFF,
-    priceMonthly: 'Whatever you wanna support',
-    description: 'One off support of whatever you want 🙂',
-    features: ['Support server & site development', 'Increase server bandwidth', 'Help manitain server', 'Limited 4K'],
-    btnLbl: 'Support'
-  },
-  {
-    name: 'Supporter',
-    id: 'tier-supporter',
-    href: process.env.STRIPE_RECURRING,
-    priceMonthly: '$10',
-    description: 'Monthly support',
-    features: ['Support server & site development', 'Increase server bandwidth', 'Help manitain server', '4K Requests', '4K Streaming 👀', 'Access to all other hosted sites 😏 '],
-    btnLbl: 'Support monthly'
-  },
-]
+
+
 
 const SupportServers: React.FC = () => {
+  const overseerrPlusSettings = useSWR<OverseerrPlus>(() => {
+    return '/api/v1/overseerrPlus/settings';
+  });
+  const tiers = [
+    {
+      name: '',
+      id: 'tier-one-off',
+      href: overseerrPlusSettings.data?.stripeOneOffLink,
+      priceMonthly: 'Whatever you wanna support',
+      description: 'One off support of whatever you want 🙂',
+      features: ['Support server & site development', 'Increase server bandwidth', 'Help manitain server', 'Limited 4K'],
+      btnLbl: 'Support'
+    },
+    {
+      name: 'Supporter',
+      id: 'tier-supporter',
+      href: overseerrPlusSettings.data?.stripeRecurringLink,
+      priceMonthly: '$10',
+      description: 'Monthly support',
+      features: ['Support server & site development', 'Increase server bandwidth', 'Help manitain server', '4K Requests', '4K Streaming 👀', 'Access to all other hosted sites 😏 '],
+      btnLbl: 'Support monthly'
+    },
+  ]
+
   return (
     <>
       <div className="isolate overflow-hidden bg-gray-900">

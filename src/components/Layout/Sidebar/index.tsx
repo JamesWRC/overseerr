@@ -19,6 +19,10 @@ import { useRouter } from 'next/router';
 import { Fragment, useRef } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 
+import useSWR from 'swr';
+import { OverseerrPlus } from '@server/lib/settings';
+
+
 // import useSWR from 'swr';
 // import { OverseerrPlus } from '../../../../server/lib/settings';
 
@@ -107,7 +111,8 @@ const SidebarLinks: SidebarLinkProps[] = [
   },
 ];
 
-
+// const settings = getSettings();
+// console.log(settings)
 
 
 const Sidebar = ({ open, setClosed }: SidebarProps) => {
@@ -116,10 +121,16 @@ const Sidebar = ({ open, setClosed }: SidebarProps) => {
   const intl = useIntl();
   const { hasPermission } = useUser();
   useClickOutside(navRef, () => setClosed());
-
+  const overseerrPlusWelcome = useSWR<OverseerrPlus>(() => {
+    return '/api/v1/overseerrPlus/';
+  });
+  const overseerrPlusSettings = useSWR<OverseerrPlus>(() => {
+    return '/api/v1/overseerrPlus/settings';
+  });
+  console.log(overseerrPlusSettings.data)
   // Check if ArrivalsTab is enabled and arrivals has been added, if not add it at position.
   if (
-    // getSettings().overseerrPlus.OSPShowArrivalsTab &&
+    overseerrPlusSettings.data?.showArrivalsTab &&
     !SidebarLinks.some((sidebar) => sidebar.messagesKey === 'arrivals')
   ) {
     const arrivalsTab: SidebarLinkProps = {
@@ -130,14 +141,14 @@ const Sidebar = ({ open, setClosed }: SidebarProps) => {
     };
     SidebarLinks.splice(3, 0, arrivalsTab);
   }
-
-  if (window.location.href.indexOf('localhost') > -1 || window.location.href.indexOf('jflix')) {
+  if (overseerrPlusSettings.data?.showSupportTab &&
+    !SidebarLinks.some((sidebar) => sidebar.messagesKey === 'supportServers')) {
     SidebarLinks.push(
       {
         href: '/support-servers',
         messagesKey: 'supportServers',
         svgIcon: <HeartIcon className="mr-3 h-6 w-6" />,
-        activeRegExp: /^\/settings/,
+        activeRegExp: /^\/support/,
         dataTestId: 'sidebar-menu-support',
       })
   }

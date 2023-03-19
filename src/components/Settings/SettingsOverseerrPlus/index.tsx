@@ -24,7 +24,17 @@ const messages = defineMessages({
     showArrivalsDescription: 'A feature that allows users to see upcoming tv shows and movies',
 
     arrivalsMonthView: 'Arriving month view',
-    arrivalsMonthViewDescription: 'Shows the TV Shows & Movies arriving later this month or next month. Note: If current date + 14 days are in the same month, this will show \'Later this month\' else this will show \'Next month\''
+    arrivalsMonthViewDescription: 'Shows the TV Shows & Movies arriving later this month or next month. Note: If current date + 14 days are in the same month, this will show \'Later this month\' else this will show \'Next month\'',
+
+    showSupportTab: 'Show Support tab',
+    showSupportTabDescription: 'Allow users to support your server hosting efforts',
+
+    stripeOneOffLinkTitle: 'Stripe One-Off Link',
+    stripeOneOffLinkDescription: 'Allow users to send a one-off donation to you via Stripe',
+
+    stripeRecurringLinkTitle: 'Stripe Monthly Reccuring Link',
+    stripeRecurringLinkDescription: 'Allow users to send a monthly recuring donation to you via Stripe',
+
 });
 
 const SettingsOverseerrPlus: React.FC = () => {
@@ -62,15 +72,22 @@ const SettingsOverseerrPlus: React.FC = () => {
             <div className="section">
                 <Formik
                     initialValues={{
-                        OSPShowArrivalsTab: data?.OSPShowArrivalsTab,
-                        OSPArrivalsShowMonth: data?.OSPArrivalsShowMonth,
+                        showArrivalsTab: data?.showArrivalsTab,
+                        showMonthArrival: data?.showMonthArrival,
+                        showSupportTab: data?.showSupportTab,
+                        stripeOneOffLink: data?.stripeOneOffLink,
+                        stripeRecurringLink: data?.stripeRecurringLink,
+
                     }}
                     enableReinitialize
                     onSubmit={async (values) => {
                         try {
                             await axios.post('/api/v1/settings/overseerrPlus', {
-                                OSPShowArrivalsTab: values.OSPShowArrivalsTab,
-                                OSPArrivalsShowMonth: values.OSPArrivalsShowMonth
+                                showArrivalsTab: values.showArrivalsTab,
+                                showMonthArrival: values.showMonthArrival,
+                                showSupportTab: values.showSupportTab,
+                                stripeOneOffLink: values.stripeOneOffLink,
+                                stripeRecurringLink: values.stripeRecurringLink,
                             });
                             mutate('/api/v1/settings/public');
 
@@ -101,17 +118,17 @@ const SettingsOverseerrPlus: React.FC = () => {
                                     <div className="form-input-area">
                                         <Field
                                             type="checkbox"
-                                            id="OSPShowArrivalsTab"
-                                            name="OSPShowArrivalsTab"
+                                            id="showArrivalsTab"
+                                            name="showArrivalsTab"
                                             onChange={() => {
-                                                setFieldValue('OSPShowArrivalsTab', !values.OSPShowArrivalsTab);
+                                                setFieldValue('showArrivalsTab', !values.showArrivalsTab);
                                             }}
                                         />
                                     </div>
                                 </div>
 
-                                <div className={values.OSPShowArrivalsTab ? "form-row" : "hidden"}>
-                                    <label htmlFor="OSPArrivalsShowMonth" className="checkbox-label pl-8">
+                                <div className={values.showArrivalsTab ? "form-row" : "hidden"}>
+                                    <label htmlFor="showMonthArrival" className="checkbox-label pl-8">
                                         {intl.formatMessage(messages.arrivalsMonthView)}
                                         <span className="label-tip">
                                             {intl.formatMessage(messages.arrivalsMonthViewDescription)}
@@ -120,11 +137,64 @@ const SettingsOverseerrPlus: React.FC = () => {
                                     <div className="form-input-area">
                                         <Field
                                             type="checkbox"
-                                            id="OSPArrivalsShowMonth"
-                                            name="OSPArrivalsShowMonth"
+                                            id="showMonthArrival"
+                                            name="showMonthArrival"
                                             onChange={() => {
-                                                setFieldValue('OSPArrivalsShowMonth', !values.OSPArrivalsShowMonth);
+                                                setFieldValue('showMonthArrival', !values.showMonthArrival);
                                             }}
+                                        />
+                                    </div>
+                                </div>
+
+
+                                <div className="form-row">
+                                    <div className="mb-6">
+                                        <h3 className="heading">{intl.formatMessage(messages.showSupportTab)}</h3>
+                                        <p className="description">
+                                            {intl.formatMessage(messages.showSupportTabDescription)}
+                                        </p>
+                                    </div>
+                                    <div className="form-input-area">
+                                        <Field
+                                            type="checkbox"
+                                            id="showSupportTab"
+                                            name="showSupportTab"
+                                            onChange={() => {
+                                                setFieldValue('showSupportTab', !values.showSupportTab);
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* // Support Stipe on-off dono */}
+                                <div className={values.showSupportTab ? "form-row" : "hidden"}>
+                                    <label htmlFor="showMonthArrival" className="checkbox-label pl-8">
+                                        {intl.formatMessage(messages.stripeOneOffLinkTitle)}
+                                        <span className="label-tip">
+                                            {intl.formatMessage(messages.stripeOneOffLinkDescription)}
+                                        </span>
+                                    </label>
+                                    <div className="form-input-area">
+                                        <Field
+                                            type="text"
+                                            id="stripeOneOffLink"
+                                            name="stripeOneOffLink"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className={values.showSupportTab ? "form-row" : "hidden"}>
+                                    <label htmlFor="showMonthArrival" className="checkbox-label pl-8">
+                                        {intl.formatMessage(messages.stripeRecurringLinkTitle)}
+                                        <span className="label-tip">
+                                            {intl.formatMessage(messages.stripeRecurringLinkDescription)}
+                                        </span>
+                                    </label>
+                                    <div className="form-input-area">
+                                        <Field
+                                            type="text"
+                                            id="stripeRecurringLink"
+                                            name="stripeRecurringLink"
                                         />
                                     </div>
                                 </div>

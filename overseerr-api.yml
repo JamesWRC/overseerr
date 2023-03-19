@@ -144,6 +144,15 @@ components:
         showMonthArrival:
           type: boolean
           example: true
+        showSupportTab:
+          type: boolean
+          example: true
+        stripeOneOffLink: 
+          type: string
+          example: https://buy.stripe.com/xxxxxx
+        stripeRecurringLink: 
+          type: string
+          example: https://buy.stripe.com/xxxxxx
     PlexLibrary:
       type: object
       properties:
@@ -1924,6 +1933,34 @@ paths:
       responses:
         '200':
           description: 'Values were sucessfully updated'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OverseerrPlusSettings'
+  /overseerrPlus:
+    get:
+      summary: Get overseerrPlus settings
+      description: Retrieves all overseerrPlus settings in a JSON object.
+      security: []
+      tags:
+        - public
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OverseerrPlusSettings'
+  /overseerrPlus/settings:
+    get:
+      summary: Get overseerrPlus settings
+      description: Retrieves all overseerrPlus settings in a JSON object.
+      security: []
+      tags:
+        - public
+      responses:
+        '200':
+          description: OK
           content:
             application/json:
               schema:
