@@ -30,7 +30,7 @@ const SupportServers: React.FC = () => {
           <div className="mx-auto max-w-4xl">
             <h2 className="text-base font-semibold leading-7 text-indigo-400">Support</h2>
             <p className="mt-2 text-4xl font-bold tracking-tight text-white sm:text-5xl">
-              Wanna help support server costs <br className="hidden sm:inline lg:hidden" />
+              Wanna help support server costs? <br className="hidden sm:inline lg:hidden" />
 
             </p>
           </div>

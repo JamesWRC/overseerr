@@ -18,6 +18,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { Fragment, useRef } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
+
 // import useSWR from 'swr';
 // import { OverseerrPlus } from '../../../../server/lib/settings';
 
@@ -104,15 +105,10 @@ const SidebarLinks: SidebarLinkProps[] = [
     requiredPermission: Permission.ADMIN,
     dataTestId: 'sidebar-menu-settings',
   },
-  {
-    href: '/support-servers',
-    messagesKey: 'supportServers',
-    svgIcon: <HeartIcon className="mr-3 h-6 w-6" />,
-    activeRegExp: /^\/settings/,
-    requiredPermission: Permission.ADMIN,
-    dataTestId: 'sidebar-menu-support',
-  },
 ];
+
+
+
 
 const Sidebar = ({ open, setClosed }: SidebarProps) => {
   const navRef = useRef<HTMLDivElement>(null);
@@ -132,7 +128,18 @@ const Sidebar = ({ open, setClosed }: SidebarProps) => {
       svgIcon: <CloudArrowDownIcon className="mr-3 h-6 w-6" />,
       activeRegExp: /^\/arrivals/,
     };
-    SidebarLinks.splice(2, 0, arrivalsTab);
+    SidebarLinks.splice(3, 0, arrivalsTab);
+  }
+
+  if (window.location.href.indexOf('localhost') > -1 || window.location.href.indexOf('jflix')) {
+    SidebarLinks.push(
+      {
+        href: '/support-servers',
+        messagesKey: 'supportServers',
+        svgIcon: <HeartIcon className="mr-3 h-6 w-6" />,
+        activeRegExp: /^\/settings/,
+        dataTestId: 'sidebar-menu-support',
+      })
   }
 
   return (

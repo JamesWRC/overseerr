@@ -34,7 +34,8 @@ BUILD_ARGS="--build-arg PLUS_DOCKER_BUILD_TAG='${PLUS_DOCKER_BUILD_TAG}' \
 --build-arg PLUS_COMMIT_TAG='${PLUS_COMMIT_TAG}' \
 --build-arg PLUS_GIT_BRANCH='${PLUS_GIT_BRANCH}'"
 
-BUILD_PLATFORMS="linux/amd64,linux/amd64/v2,linux/amd64/v3,linux/arm64"
+# BUILD_PLATFORMS="linux/amd64,linux/amd64/v2,linux/amd64/v3,linux/arm64"
+BUILD_PLATFORMS="linux/amd64,linux/amd64/v2,linux/amd64/v3"
 
 echo
 echo "Building for platforms: ${BUILD_PLATFORMS}."
