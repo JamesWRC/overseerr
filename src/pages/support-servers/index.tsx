@@ -1,10 +1,10 @@
 import { NextPage } from 'next';
 import React from 'react';
-import Arrivals from '../../components/Arrivals';
+import SupportServers from '@app/components/SupportServers';
 import useRouteGuard from '../../hooks/useRouteGuard';
 import { Permission } from '../../hooks/useUser';
 
-const ArrivalsPage: NextPage = () => {
+const SupportServerPage: NextPage = () => {
     useRouteGuard(
         [
             // Pretty much everyuser 
@@ -14,7 +14,7 @@ const ArrivalsPage: NextPage = () => {
             type: 'or',
         }
     );
-    return <Arrivals />;
+    return <SupportServers />;
 };
 
-export default ArrivalsPage;
+export default SupportServerPage;
