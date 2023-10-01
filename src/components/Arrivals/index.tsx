@@ -1,7 +1,7 @@
-import React from 'react';
+import type { OverseerrPlus } from '@server/lib/settings';
+import type React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import useSWR from 'swr';
-import { OverseerrPlus } from '../../../server/lib/settings';
 import ArrivalsSlider from './ArrivalsSlider';
 
 const messages = defineMessages({
@@ -151,9 +151,7 @@ const Arrivals: React.FC = () => {
     const thisMonthStartDate = new Date(
       new Date(nextWeekEndDate.getTime() + 1 * 24 * 60 * 60 * 1000)
     );
-    console.log('thisMonthEndDate');
-    console.log(thisMonthStartDate);
-    console.log(thisMonthEndDate);
+
     monthContent = (
       <ArrivalsSlider
         sliderKey={'Later this month'}

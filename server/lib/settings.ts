@@ -256,9 +256,9 @@ export interface OverseerrPlus {
   showArrivalsTab: boolean;
   showMonthArrival: boolean;
   showSupportTab: boolean;
-  stripeOneOffLink: string;
-  stripeRecurringLink: string;
-
+  issueAutoRerequest: boolean;
+  paypalOneOffLink: string;
+  paypalRecurringLink: string;
 }
 
 interface AllSettings {
@@ -438,9 +438,10 @@ class Settings {
         showArrivalsTab: false,
         showMonthArrival: false,
         showSupportTab: false,
-        stripeOneOffLink: "",
-        stripeRecurringLink: "",
-      }
+        issueAutoRerequest: false,
+        paypalOneOffLink: '',
+        paypalRecurringLink: '',
+      },
     };
     if (initialSettings) {
       this.data = merge(this.data, initialSettings);

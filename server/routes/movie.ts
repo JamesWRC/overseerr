@@ -1,27 +1,27 @@
 import RottenTomatoes from '@server/api/rottentomatoes';
+import RadarrAPI from '@server/api/servarr/radarr';
 import TheMovieDb from '@server/api/themoviedb';
+import type { TmdbMovieDetails } from '@server/api/themoviedb/interfaces';
 import { MediaType } from '@server/constants/media';
 import Media from '@server/entity/Media';
+import { getSettings } from '@server/lib/settings';
 import logger from '@server/logger';
+import type { MovieDetails } from '@server/models/Movie';
 import { mapMovieDetails } from '@server/models/Movie';
 import { mapMovieResult } from '@server/models/Search';
 import { Router } from 'express';
-import { TmdbMovieDetails } from '../../server/api/themoviedb/interfaces';
-import RadarrAPI from '../api/servarr/radarr';
-import { getSettings } from '../lib/settings';
-import type { MovieDetails } from '../models/Movie';
-
 
 const movieRoutes = Router();
 
+// OverseerrPlus - Calendar API - Used for Arrivals feature
 movieRoutes.get('/calendar', async (req, res, next) => {
   // Current version of the API for sonarr
-  const SONARR_API_VERSION = '/api/v3'
+  const SONARR_API_VERSION = '/api/v3';
 
   const tmdb = new TheMovieDb();
   const settings = getSettings();
 
-  const radarrSettings = settings.radarr
+  const radarrSettings = settings.radarr;
 
   // Return error if no radarr server has been setup
   if (!radarrSettings || radarrSettings.length === 0) {
@@ -31,14 +31,20 @@ movieRoutes.get('/calendar', async (req, res, next) => {
     });
   }
 
-  const calItems: Array<MovieDetails> = []
+  const calItems: MovieDetails[] = [];
   try {
     // Search through all radarr servers
     for (const radarrInstance of radarrSettings) {
-
       // Skip the 4k server if its the same server. IE the 4k server is the same server but with the 4k quality profile applied.
-      if (radarrSettings.filter(e => (e.hostname === radarrInstance.hostname && e.port === radarrInstance.port && radarrInstance.is4k)).length > 0) {
-        continue
+      if (
+        radarrSettings.filter(
+          (e) =>
+            e.hostname === radarrInstance.hostname &&
+            e.port === radarrInstance.port &&
+            radarrInstance.is4k
+        ).length > 0
+      ) {
+        continue;
       }
       // Get radarr instance
       const radarr = new RadarrAPI({
@@ -55,16 +61,16 @@ movieRoutes.get('/calendar', async (req, res, next) => {
         startTime = encodeURIComponent(new Date().toISOString());
       }
       if (!endTime) {
-        endTime = encodeURIComponent(new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000).toISOString());
+        endTime = encodeURIComponent(
+          new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000).toISOString()
+        );
       }
 
       // Get all calendar items
-      const calData = await radarr.getCalendarItems(startTime, endTime)
-
+      const calData = await radarr.getCalendarItems(startTime, endTime);
 
       // Search through all scheduled items
       for (const movie of calData) {
-
         // Get movie details
         const movieDetails = <TmdbMovieDetails>await tmdb.getMediaByImdbId({
           imdbId: movie.imdbId,
@@ -75,17 +81,19 @@ movieRoutes.get('/calendar', async (req, res, next) => {
         const media = await Media.getMedia(movieDetails.id, MediaType.MOVIE);
 
         // Add the mapped movie and mediaInfo to an array
-        calItems.push(mapMovieDetails(movieDetails, media))
+        calItems.push(mapMovieDetails(movieDetails, media));
       }
     }
     // Return the mapped data.
     return res.status(200).json(calItems);
-
   } catch (e) {
-    logger.debug('Something went wrong retrieving calendar data.', { label: 'API', errorMessage: e.message });
+    logger.debug('Something went wrong retrieving calendar data.', {
+      label: 'API',
+      errorMessage: e.message,
+    });
     return next({
       status: 500,
-      message: 'Unable to retrieve calendar data.'
+      message: 'Unable to retrieve calendar data.',
     });
   }
 });
@@ -100,7 +108,6 @@ movieRoutes.get('/:id', async (req, res, next) => {
     });
 
     const media = await Media.getMedia(tmdbMovie.id, MediaType.MOVIE);
-
     return res.status(200).json(mapMovieDetails(tmdbMovie, media));
   } catch (e) {
     logger.debug('Something went wrong retrieving movie', {
