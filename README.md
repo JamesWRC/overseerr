@@ -24,6 +24,7 @@
 ### Overseerr environment variables:
 See the .prod.plus.env file (also shown in the docker-compose.plus.prod.yml example)
 Stripe Support intergration: Get these links from your Stripe product payment links
+- SHOW_SUPPORT_TAB=true # Set this to true to show the support tab
 - STRIPE_ONE_OFF="" 
 - STRIPE_RECURRING=""
 

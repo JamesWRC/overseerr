@@ -7,23 +7,23 @@ import { mapTvResult } from '@server/models/Search';
 import { mapSeasonWithEpisodes, mapTvDetails } from '@server/models/Tv';
 import { Router } from 'express';
 
-import { TmdbTvDetails } from '../../server/api/themoviedb/interfaces';
-import SonarrAPI from '../api/servarr/sonarr';
-import { getSettings } from '../lib/settings';
-import { TvDetails } from '@server/models/Tv';
-import { MediaStatus } from '@server/constants/media'
+import SonarrAPI from '@server/api/servarr/sonarr';
+import type { TmdbTvDetails } from '@server/api/themoviedb/interfaces';
+import { MediaStatus } from '@server/constants/media';
+import { getSettings } from '@server/lib/settings';
+import type { TvDetails } from '@server/models/Tv';
 
 const tvRoutes = Router();
 
-
+// OverseerrPlus - Calendar API - Used for Arrivals feature
 tvRoutes.get('/calendar', async (req, res, next) => {
   // Current version of the API for sonarr
-  const SONARR_API_VERSION = '/api/v3'
+  const SONARR_API_VERSION = '/api/v3';
 
   const tmdb = new TheMovieDb();
   const settings = getSettings();
 
-  const sonarrSettings = settings.sonarr
+  const sonarrSettings = settings.sonarr;
 
   // Return error if no sonarr server has been setup
   if (!sonarrSettings || sonarrSettings.length === 0) {
@@ -33,15 +33,20 @@ tvRoutes.get('/calendar', async (req, res, next) => {
     });
   }
 
-  const calItems: Array<TvDetails> = []
+  const calItems: TvDetails[] = [];
   try {
-
     // Search through all sonarr servers
     for (const sonarrInstance of sonarrSettings) {
-
       // Skip the 4k server if its the same server. IE the 4k server is the same server but with the 4k quality profile applied.
-      if (sonarrSettings.filter(e => (e.hostname === sonarrInstance.hostname && e.port === sonarrInstance.port && sonarrInstance.is4k)).length > 0) {
-        continue
+      if (
+        sonarrSettings.filter(
+          (e) =>
+            e.hostname === sonarrInstance.hostname &&
+            e.port === sonarrInstance.port &&
+            sonarrInstance.is4k
+        ).length > 0
+      ) {
+        continue;
       }
 
       // Get Sonarr instance
@@ -59,22 +64,23 @@ tvRoutes.get('/calendar', async (req, res, next) => {
         startTime = new Date().toISOString();
       }
       if (!endTime) {
-        endTime = new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000).toISOString();
+        endTime = new Date(
+          new Date().getTime() + 7 * 24 * 60 * 60 * 1000
+        ).toISOString();
       }
 
-      // Get calendar items 
-      const calData = await sonarr.getCalendarItems(startTime, endTime)
+      // Get calendar items
+      const calData = await sonarr.getCalendarItems(startTime, endTime);
 
       // Get queue of downloading items to check status of
-      const downloadQueue = await sonarr.getQueue()
+      const downloadQueue = await sonarr.getQueue();
 
       // Search through all scheduled items
       for (const show of calData) {
-
-        const sonarrSeriesID = Number(show.seriesId)
+        const sonarrSeriesID = Number(show.seriesId);
 
         // Get the series by the id sent from sonarr
-        const showData = await sonarr.getSeriesByID(sonarrSeriesID)
+        const showData = await sonarr.getSeriesByID(sonarrSeriesID);
 
         // Get show details
         const tv = <TmdbTvDetails>await tmdb.getMediaByImdbId({
@@ -82,62 +88,62 @@ tvRoutes.get('/calendar', async (req, res, next) => {
           language: req.locale ?? (req.query.language as string),
         });
 
-
-
         // Get the show media (needed for download status etc)
         const media = await Media.getMedia(tv.id, MediaType.TV);
 
-        let status = MediaStatus.PENDING
+        let status = MediaStatus.PENDING;
         // Check episode download status
         if (tv.next_episode_to_air?.air_date) {
           // Override the air date for the next episode to be a UTC format
           // tv.next_episode_to_air.air_date = show.airDateUtc
           if (!show.hasFile) {
             for (const item of downloadQueue) {
-              if (item.seriesId === show.seriesId && item.episodeId === item.episodeId) {
-
-                if (item.trackedDownloadState === "downloading") {
-                  status = MediaStatus.PROCESSING
+              if (
+                item.seriesId === show.seriesId &&
+                item.episodeId === item.episodeId
+              ) {
+                if (item.trackedDownloadState === 'downloading') {
+                  status = MediaStatus.PROCESSING;
                 }
-
               } else {
-                status = MediaStatus.AVAILABLE
+                status = MediaStatus.AVAILABLE;
               }
             }
           } else {
-            status = MediaStatus.AVAILABLE
-
+            status = MediaStatus.AVAILABLE;
           }
         }
 
         // Set media status
         if (media) {
-          media.status = status
+          media.status = status;
         }
 
         // Update tv episode number since this object may be weeks ahead of the next episode data.
         if (tv.next_episode_to_air) {
           // Update show season / episode numbers.
-          tv.next_episode_to_air.season_number = show.seasonNumber
-          tv.next_episode_to_air.episode_number = show.episodeNumber
+          tv.next_episode_to_air.season_number = show.seasonNumber;
+          tv.next_episode_to_air.episode_number = show.episodeNumber;
 
           // Update show date and description.
-          tv.next_episode_to_air.air_date = show.airDateUtc
-          tv.next_episode_to_air.overview = show.title
+          tv.next_episode_to_air.air_date = show.airDateUtc;
+          tv.next_episode_to_air.overview = show.title;
         }
 
         // Add the mapped movie and mediaInfo to an array
-        calItems.push(mapTvDetails(tv, media))
+        calItems.push(mapTvDetails(tv, media));
       }
     }
     // Return the mapped data.
     return res.status(200).json(calItems);
-
   } catch (e) {
-    logger.debug('Something went wrong retrieving calendar data.', { label: 'API', errorMessage: e.message });
+    logger.debug('Something went wrong retrieving calendar data.', {
+      label: 'API',
+      errorMessage: e.message,
+    });
     return next({
       status: 500,
-      message: 'Unable to retrieve calendar data.'
+      message: 'Unable to retrieve calendar data.',
     });
   }
 });

@@ -11,6 +11,8 @@ import {
   SparklesIcon,
   TvIcon,
   UsersIcon,
+  CloudArrowDownIcon,
+  HeartIcon,
 } from '@heroicons/react/24/outline';
 import {
   ClockIcon as FilledClockIcon,
@@ -21,12 +23,16 @@ import {
   TvIcon as FilledTvIcon,
   UsersIcon as FilledUsersIcon,
   XMarkIcon,
+  CloudArrowDownIcon as FilledCloudArrowDownIcon,
+  HeartIcon as FilledHeartIcon
 } from '@heroicons/react/24/solid';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { cloneElement, useRef, useState } from 'react';
 import { useIntl } from 'react-intl';
 
+import useSWR from 'swr';
+import { OverseerrPlus } from '@server/lib/settings';
 interface MenuLink {
   href: string;
   svgIcon: JSX.Element;
@@ -54,6 +60,10 @@ const MobileMenu = () => {
   });
 
   const toggle = () => setIsOpen(!isOpen);
+
+  const overseerrPlusSettings = useSWR<OverseerrPlus>(() => {
+    return '/api/v1/overseerrPlus/settings';
+  });
 
   const menuLinks: MenuLink[] = [
     {
@@ -124,6 +134,32 @@ const MobileMenu = () => {
         type: link.permissionType ?? 'and',
       })
   );
+  if (
+    overseerrPlusSettings.data?.showArrivalsTab &&
+    !filteredLinks.some((sidebar) => sidebar.content === 'arrivals')
+  ) {
+    const arrivalsTab: MenuLink = {
+      href: '/arrivals',
+      content: intl.formatMessage(menuMessages.arrivals),
+      svgIcon: <CloudArrowDownIcon className="mr-3 h-6 w-6" />,
+      activeRegExp: /^\/arrivals/,
+      svgIconSelected: <FilledCloudArrowDownIcon className="mr-3 h-6 w-6" />
+    };
+    filteredLinks.splice(3, 0, arrivalsTab);
+  }
+
+  if (overseerrPlusSettings.data?.showSupportTab &&
+    !filteredLinks.some((sidebar) => sidebar.content === 'supportServers')) {
+    filteredLinks.push(
+      {
+        href: '/support-servers',
+        content: intl.formatMessage(menuMessages.supportServers),
+        svgIcon: <HeartIcon className="mr-3 h-6 w-6" />,
+        svgIconSelected: <FilledHeartIcon className="mr-3 h-6 w-6" />,
+        activeRegExp: /^\/support/,
+        dataTestId: 'sidebar-menu-support',
+      })
+  }
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50">
@@ -144,9 +180,8 @@ const MobileMenu = () => {
           return (
             <Link key={`mobile-menu-link-${link.href}`} href={link.href}>
               <a
-                className={`flex items-center space-x-2 ${
-                  isActive ? 'text-indigo-500' : ''
-                }`}
+                className={`flex items-center space-x-2 ${isActive ? 'text-indigo-500' : ''
+                  }`}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     setIsOpen(false);
@@ -175,9 +210,8 @@ const MobileMenu = () => {
               return (
                 <Link key={`mobile-menu-link-${link.href}`} href={link.href}>
                   <a
-                    className={`flex flex-col items-center space-y-1 ${
-                      isActive ? 'text-indigo-500' : ''
-                    }`}
+                    className={`flex flex-col items-center space-y-1 ${isActive ? 'text-indigo-500' : ''
+                      }`}
                   >
                     {cloneElement(
                       isActive ? link.svgIconSelected : link.svgIcon,
@@ -191,9 +225,8 @@ const MobileMenu = () => {
             })}
           {filteredLinks.length > 4 && filteredLinks.length !== 5 && (
             <button
-              className={`flex flex-col items-center space-y-1 ${
-                isOpen ? 'text-indigo-500' : ''
-              }`}
+              className={`flex flex-col items-center space-y-1 ${isOpen ? 'text-indigo-500' : ''
+                }`}
               onClick={() => toggle()}
             >
               {isOpen ? (

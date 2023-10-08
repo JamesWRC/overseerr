@@ -623,7 +623,6 @@ settingsRoutes.get('/about', async (req, res) => {
 
 settingsRoutes.get('/overseerrPlus', (_req, res) => {
   const settings = getSettings();
-
   res.status(200).json(settings.overseerrPlus);
 });
 

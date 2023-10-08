@@ -97,13 +97,14 @@ echo " - PLUS_GIT_BRANCH: $PLUS_GIT_BRANCH"
 echo
 
 # Put env vars into .env file based on build environment
-echo "\
-COMMIT_TAG=$latestOverseerrReleaseTag
-PLUS_COMMIT_TAG=$latestOverseerrPlusReleaseTag
-PLUS_BUILD_ENV=$BUILD_ENV
-PLUS_DOCKER_BUILD_TAG=$PLUS_DOCKER_BUILD_TAG
-PLUS_GIT_BRANCH=$PLUS_GIT_BRANCH
-" > ."${ENV_FILE_NAME}".plus.env 
+# echo "\
+# COMMIT_TAG=$latestOverseerrReleaseTag
+# PLUS_COMMIT_TAG=$latestOverseerrPlusReleaseTag
+# PLUS_BUILD_ENV=$BUILD_ENV
+# PLUS_DOCKER_BUILD_TAG=$PLUS_DOCKER_BUILD_TAG
+# PLUS_GIT_BRANCH=$PLUS_GIT_BRANCH
+
+# " > ."${ENV_FILE_NAME}".plus.env 
 
 # Export env variable for build tag
 export PLUS_DOCKER_BUILD_TAG=$PLUS_DOCKER_BUILD_TAG
