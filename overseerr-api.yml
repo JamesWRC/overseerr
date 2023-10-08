@@ -144,15 +144,18 @@ components:
         showMonthArrival:
           type: boolean
           example: true
+        issueAutoRerequest:
+          type: boolean
+          example: true
         showSupportTab:
           type: boolean
           example: true
-        stripeOneOffLink: 
+        paypalOneOffLink: 
           type: string
-          example: https://buy.stripe.com/xxxxxx
-        stripeRecurringLink: 
+          example: https://paypal.me/xxxxxx
+        paypalRecurringLink: 
           type: string
-          example: https://buy.stripe.com/xxxxxx
+          example: https://paypal.me/xxxxxx
     PlexLibrary:
       type: object
       properties:

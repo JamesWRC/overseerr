@@ -1,6 +1,13 @@
 import logger from '@server/logger';
 import ServarrBase from './base';
 
+// Overseerr PLus API - import interfaces start
+import type {
+  MovieCalendarItem,
+  MovieFile,
+} from '@server/api/servarr/overseerrPlus/interfaces/radarr';
+// Overseerr PLus API - import interfaces end
+
 export interface RadarrMovieOptions {
   title: string;
   qualityProfileId: number;
@@ -28,32 +35,100 @@ export interface RadarrMovie {
   qualityProfileId: number;
   added: string;
   hasFile: boolean;
+  movieFile?: MovieFile;
 }
-export interface MovieCalendarItem extends RadarrMovie {
-  poster_path: string
-  summary: string
-  vote_average: number
-  year: string
-}
+
 class RadarrAPI extends ServarrBase<{ movieId: number }> {
   constructor({ url, apiKey }: { url: string; apiKey: string }) {
     super({ url, apiKey, cacheName: 'radarr', apiName: 'Radarr' });
   }
 
-  public async getCalendarItems(startTime: string, endTime: string): Promise<MovieCalendarItem[]> {
+  // Overseerr PLus API - gets all calendar items from Radarr
+  public async getCalendarItems(
+    startTime: string,
+    endTime: string
+  ): Promise<MovieCalendarItem[]> {
+    let calendarItems: MovieCalendarItem[] = [];
     try {
       // Will get all items in the calendar from Radarr API
-      const calendarItemsRequest = await this.axios.get<MovieCalendarItem[]>('/calendar', {
-        params: {
-          unmonitored: false, start: startTime, end: endTime
-        },
-      })
+      const calendarItemsRequest = await this.axios.get<MovieCalendarItem[]>(
+        '/calendar',
+        {
+          params: {
+            unmonitored: false,
+            start: startTime,
+            end: endTime,
+          },
+        }
+      );
 
       // Return all calendar items from Radarr
-      return calendarItemsRequest.data;
-
+      calendarItems = calendarItemsRequest.data;
     } catch (e) {
-      throw new Error(`[Radarr] Failed to retrieve calendar data: ${e.message}`);
+      logger.error(`[Radarr] Failed to retrieve calendar data: ${e.message}`);
+    }
+    return calendarItems;
+  }
+
+  // Overseerr PLus API - deletes the movie from Radarr
+  public async deleteMovie(movieId: number): Promise<void> {
+    try {
+      // Delete the movie via fetch
+      const response = await this.axios.delete(`/movieFile/${movieId}`, {
+        params: {
+          deleteFiles: true,
+        },
+      });
+      return response.data;
+    } catch (e) {
+      logger.error(`[Radarr] Failed to delete movie: ${e.message}`);
+    }
+  }
+
+  // Overseerr API - wrapper to get movie with file from getMovieByTmdbId
+  public async getMovieByTmdbIdWithMovieFile(id: number): Promise<RadarrMovie> {
+    const movie: RadarrMovie = await this.getMovieByTmdbId(id);
+    return movie;
+  }
+
+  // Overseerr Plus API - get the history of a movie
+  public async getHistory(movieId: number): Promise<any> {
+    try {
+      // Get the history of the movie via fetch
+      const response = await this.axios.get<any>(`/history/movie`, {
+        params: {
+          movieId: movieId,
+          eventType: 'downloadFolderImported',
+        },
+      });
+
+      return response.data;
+    } catch (e) {
+      logger.error(
+        `[overseerr+ API - Radarr] Failed to retrieve history: ${e.message}`
+      );
+    }
+  }
+
+  // Overseerr Plus API - Tell radarr to mark the file as failed. This will stop radarr from trying to import the file again.
+  public async markFileAsFailed(movieId: number): Promise<void> {
+    try {
+      // Get the latest history of the movie via fetch
+      const history = await this.getHistory(movieId);
+      logger.debug('Radarr history', {
+        label: 'Radarr API',
+        history,
+      });
+      logger.debug(JSON.stringify(history));
+
+      const fileId = history[0].id;
+      logger.debug('Radarr fileId', {
+        label: 'Radarr API- fileId',
+        fileId,
+      });
+      await this.axios.post(`/history/failed/${fileId}`, {});
+    } catch (e) {
+      logger.error(`[Radarr] Failed to mark file as failed: ${e.message}`);
     }
   }
 
