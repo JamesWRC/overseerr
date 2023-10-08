@@ -1,6 +1,7 @@
 import type { SonarrHistory } from '@server/api/servarr/overseerrPlus/interfaces/sonarr';
 import logger from '@server/logger';
 import ServarrBase from './base';
+
 export interface SonarrSeason {
   seasonNumber: number;
   monitored: boolean;
@@ -75,6 +76,15 @@ export interface SonarrSeries {
     ignoreEpisodesWithFiles?: boolean;
     ignoreEpisodesWithoutFiles?: boolean;
     searchForMissingEpisodes?: boolean;
+  };
+  statistics: {
+    seasonCount: number;
+    episodeFileCount: number;
+    episodeCount: number;
+    totalEpisodeCount: number;
+    sizeOnDisk: number;
+    releaseGroups: string[];
+    percentOfEpisodes: number;
   };
 }
 
@@ -274,6 +284,16 @@ class SonarrAPI extends ServarrBase<{
       });
     } catch (e) {
       throw new Error(`[Sonarr] Failed to delete file: ${e.message}`);
+    }
+  }
+
+  public async getSeriesById(id: number): Promise<SonarrSeries> {
+    try {
+      const response = await this.axios.get<SonarrSeries>(`/series/${id}`);
+
+      return response.data;
+    } catch (e) {
+      throw new Error(`[Sonarr] Failed to retrieve series by ID: ${e.message}`);
     }
   }
 
