@@ -29,7 +29,7 @@ class AvailabilitySync {
     this.sonarrSeasonsCache = {};
     this.radarrServers = settings.radarr.filter((server) => server.syncEnabled);
     this.sonarrServers = settings.sonarr.filter((server) => server.syncEnabled);
-
+    
     try {
       logger.info(`Starting availability sync...`, {
         label: 'AvailabilitySync',

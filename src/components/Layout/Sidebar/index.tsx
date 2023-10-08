@@ -11,20 +11,31 @@ import {
   TvIcon,
   UsersIcon,
   XMarkIcon,
+  CloudArrowDownIcon,
+  HeartIcon,
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { Fragment, useRef } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 
+import useSWR from 'swr';
+import { OverseerrPlus } from '@server/lib/settings';
+
+
+// import useSWR from 'swr';
+// import { OverseerrPlus } from '../../../../server/lib/settings';
+
 export const menuMessages = defineMessages({
   dashboard: 'Discover',
   browsemovies: 'Movies',
   browsetv: 'Series',
   requests: 'Requests',
+  arrivals: 'Arrivals',
   issues: 'Issues',
   users: 'Users',
   settings: 'Settings',
+  supportServers: 'Support'
 });
 
 interface SidebarProps {
@@ -98,12 +109,47 @@ const SidebarLinks: SidebarLinkProps[] = [
   },
 ];
 
+// const settings = getSettings();
+// console.log(settings)
+
+
 const Sidebar = ({ open, setClosed }: SidebarProps) => {
   const navRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const intl = useIntl();
   const { hasPermission } = useUser();
   useClickOutside(navRef, () => setClosed());
+  const overseerrPlusWelcome = useSWR<OverseerrPlus>(() => {
+    return '/api/v1/overseerrPlus/';
+  });
+  const overseerrPlusSettings = useSWR<OverseerrPlus>(() => {
+    return '/api/v1/overseerrPlus/settings';
+  });
+  console.log(overseerrPlusSettings.data)
+  // Check if ArrivalsTab is enabled and arrivals has been added, if not add it at position.
+  if (
+    overseerrPlusSettings.data?.showArrivalsTab &&
+    !SidebarLinks.some((sidebar) => sidebar.messagesKey === 'arrivals')
+  ) {
+    const arrivalsTab: SidebarLinkProps = {
+      href: '/arrivals',
+      messagesKey: 'arrivals',
+      svgIcon: <CloudArrowDownIcon className="mr-3 h-6 w-6" />,
+      activeRegExp: /^\/arrivals/,
+    };
+    SidebarLinks.splice(3, 0, arrivalsTab);
+  }
+  if (overseerrPlusSettings.data?.showSupportTab &&
+    !SidebarLinks.some((sidebar) => sidebar.messagesKey === 'supportServers')) {
+    SidebarLinks.push(
+      {
+        href: '/support-servers',
+        messagesKey: 'supportServers',
+        svgIcon: <HeartIcon className="mr-3 h-6 w-6" />,
+        activeRegExp: /^\/support/,
+        dataTestId: 'sidebar-menu-support',
+      })
+  }
 
   return (
     <>
@@ -158,8 +204,8 @@ const Sidebar = ({ open, setClosed }: SidebarProps) => {
                       {SidebarLinks.filter((link) =>
                         link.requiredPermission
                           ? hasPermission(link.requiredPermission, {
-                              type: link.permissionType ?? 'and',
-                            })
+                            type: link.permissionType ?? 'and',
+                          })
                           : true
                       ).map((sidebarLink) => {
                         return (
@@ -178,12 +224,11 @@ const Sidebar = ({ open, setClosed }: SidebarProps) => {
                               role="button"
                               tabIndex={0}
                               className={`flex items-center rounded-md px-2 py-2 text-base font-medium leading-6 text-white transition duration-150 ease-in-out focus:outline-none
-                                ${
-                                  router.pathname.match(
-                                    sidebarLink.activeRegExp
-                                  )
-                                    ? 'bg-gradient-to-br from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500'
-                                    : 'hover:bg-gray-700 focus:bg-gray-700'
+                                ${router.pathname.match(
+                                sidebarLink.activeRegExp
+                              )
+                                  ? 'bg-gradient-to-br from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500'
+                                  : 'hover:bg-gray-700 focus:bg-gray-700'
                                 }
                               `}
                               data-testid={`${sidebarLink.dataTestId}-mobile`}
@@ -228,8 +273,8 @@ const Sidebar = ({ open, setClosed }: SidebarProps) => {
                 {SidebarLinks.filter((link) =>
                   link.requiredPermission
                     ? hasPermission(link.requiredPermission, {
-                        type: link.permissionType ?? 'and',
-                      })
+                      type: link.permissionType ?? 'and',
+                    })
                     : true
                 ).map((sidebarLink) => {
                   return (
@@ -240,13 +285,12 @@ const Sidebar = ({ open, setClosed }: SidebarProps) => {
                     >
                       <a
                         className={`group flex items-center rounded-md px-2 py-2 text-lg font-medium leading-6 text-white transition duration-150 ease-in-out focus:outline-none
-                                ${
-                                  router.pathname.match(
-                                    sidebarLink.activeRegExp
-                                  )
-                                    ? 'bg-gradient-to-br from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500'
-                                    : 'hover:bg-gray-700 focus:bg-gray-700'
-                                }
+                                ${router.pathname.match(
+                          sidebarLink.activeRegExp
+                        )
+                            ? 'bg-gradient-to-br from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500'
+                            : 'hover:bg-gray-700 focus:bg-gray-700'
+                          }
                               `}
                         data-testid={sidebarLink.dataTestId}
                       >

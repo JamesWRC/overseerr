@@ -8,6 +8,9 @@ import { Permission } from '@server/lib/permissions';
 import logger from '@server/logger';
 import { isAuthenticated } from '@server/middleware/auth';
 import { Router } from 'express';
+// OverseerrPlus changes start
+import { issueAutoRerequest } from '@server/routes/overseerrPlus/autoRerequest';
+// OverseerrPlus changes end
 
 const issueRoutes = Router();
 
@@ -140,7 +143,17 @@ issueRoutes.post<
       ],
     });
 
+    issue.comments.push(
+      new IssueComment({
+        message:
+          '[SYSTEM] - Auto re-requested media. Please wait for it to be processed. If you have any questions, please contact an administrator.',
+        user: req.user,
+      })
+    );
+
     const newIssue = await issueRepository.save(issue);
+
+    await issueAutoRerequest(newIssue);
 
     return res.status(200).json(newIssue);
   }

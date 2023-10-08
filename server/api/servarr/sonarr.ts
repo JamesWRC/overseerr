@@ -1,3 +1,4 @@
+import type { SonarrHistory } from '@server/api/servarr/overseerrPlus/interfaces/sonarr';
 import logger from '@server/logger';
 import ServarrBase from './base';
 
@@ -101,6 +102,22 @@ export interface AddSeriesOptions {
   searchNow?: boolean;
 }
 
+export interface ShowCalendarItem {
+  seriesId: number;
+  episodeFileId: number;
+  seasonNumber: number;
+  episodeNumber: number;
+  title: string;
+  airDate: string;
+  airDateUtc: string;
+  overview: string;
+  hasFile: boolean;
+  monitored: boolean;
+  absoluteEpisodeNumber: number;
+  unverifiedSceneNumbering: boolean;
+  id: number;
+}
+
 export interface LanguageProfile {
   id: number;
   name: string;
@@ -116,12 +133,157 @@ class SonarrAPI extends ServarrBase<{
   }
 
   public async getSeries(): Promise<SonarrSeries[]> {
+    let returnSeries: SonarrSeries[] = [];
     try {
       const response = await this.axios.get<SonarrSeries[]>('/series');
 
+      returnSeries = response.data;
+    } catch (e) {
+      logger.error(`[Sonarr] Failed to retrieve series: ${e.message}`);
+    }
+    return returnSeries;
+  }
+  // Overseerr PLus API - gets all series from Sonarr by ID
+  public async getSeriesByID(seriesId: number): Promise<SonarrSeries> {
+    let returnSeries: SonarrSeries = {} as SonarrSeries;
+    try {
+      // Will get all items in the calendar
+      const seriesRequest = await this.axios.get<SonarrSeries>(
+        `/series/${seriesId}`
+      );
+
+      returnSeries = seriesRequest.data;
+    } catch (e) {
+      logger.error(`[Sonarr] Failed to retrieve series data: ${e.message}`);
+    }
+    return returnSeries;
+  }
+
+  // Overseerr PLus API - get calendar items from Sonarr
+  public async getCalendarItems(
+    startTime: string,
+    endTime: string
+  ): Promise<ShowCalendarItem[]> {
+    let returnCalendarItems: ShowCalendarItem[] = [];
+    try {
+      // Request calendar items from Sonarr
+      const calendarItemsRequest = await this.axios.get<ShowCalendarItem[]>(
+        '/calendar',
+        {
+          params: {
+            unmonitored: false,
+            start: startTime,
+            end: endTime,
+          },
+        }
+      );
+
+      returnCalendarItems = calendarItemsRequest.data;
+    } catch (e) {
+      logger.error(`[Sonarr] Failed to retrieve calendar data: ${e.message}`);
+    }
+    return returnCalendarItems;
+  }
+
+  // Overseerr PLus API - get all episodes from Sonarr
+  public async getEpisodeFiles(seriesId: number): Promise<EpisodeResult[]> {
+    let returnEpisodeFiles: EpisodeResult[] = [];
+    try {
+      // Request episodes from Sonarr
+      const episodesRequest = await this.axios.get<EpisodeResult[]>(
+        '/episodefile',
+        {
+          params: {
+            seriesId: seriesId,
+          },
+        }
+      );
+
+      returnEpisodeFiles = episodesRequest.data;
+    } catch (e) {
+      logger.error(`[Sonarr] Failed to retrieve episodes: ${e.message}`);
+    }
+    return returnEpisodeFiles;
+  }
+
+  // Overseerr PLus API - get all episodes from Sonarr
+  public async getEpisodes(seriesId: number): Promise<EpisodeResult[]> {
+    try {
+      const response = await this.axios.get<EpisodeResult[]>(`/episode/`, {
+        params: {
+          seriesId: seriesId,
+        },
+      });
+
       return response.data;
     } catch (e) {
-      throw new Error(`[Sonarr] Failed to retrieve series: ${e.message}`);
+      throw new Error(`[Sonarr] Failed to retrieve episodes: ${e.message}`);
+    }
+  }
+
+  // Overseerr PLus API - get history of season of a series from sonarr
+  public async getSeasonHistory(
+    seriesId: number,
+    seasonNumber: number
+  ): Promise<SonarrHistory[]> {
+    let returnSonarrHistory: SonarrHistory[] = [];
+    try {
+      // Get the history of the movie via fetch
+      const response = await this.axios.get<SonarrHistory[]>(
+        `/history/series`,
+        {
+          params: {
+            seriesId: seriesId,
+            seasonNumber: seasonNumber,
+            eventType: 3, // 3 = downloadFolderImported. The current Sonarr API expects an integer for this parameter rather than a string.
+          },
+        }
+      );
+      returnSonarrHistory = response.data;
+    } catch (e) {
+      logger.error(`[Sonarr] Failed to retrieve history: ${e.message}`);
+    }
+
+    return returnSonarrHistory;
+  }
+
+  // Overseerr PLus API - post file failed by ID
+  public async markFileAsFailed(
+    fileId: number,
+    seriesId: number,
+    seasonNumber: number
+  ): Promise<void> {
+    try {
+      // Get all history of the show via fetch
+      const seasonHistory = await this.getSeasonHistory(seriesId, seasonNumber);
+
+      logger.debug('Sonarr history', {
+        label: 'Sonarr API',
+        seasonHistory,
+      });
+      if (seasonHistory.length > 0) {
+        for (const sHistory of seasonHistory) {
+          if (sHistory.data.fileId == fileId.toString()) {
+            await this.axios.post(`/history/failed/${sHistory.id}`, {});
+          }
+        }
+      }
+      await this.axios.post(`/history/failed/${fileId}`, {});
+    } catch (e) {
+      throw new Error(`[Sonarr] Failed to mark file as failed: ${e.message}`);
+    }
+  }
+
+  // Overseerr PLus API - delete file by ID
+  public async deleteEpisode(fileId: number): Promise<void> {
+    try {
+      await this.axios.delete(`/episodefile/${fileId}`, {
+        params: {
+          episodeEntity: 'episodes', // This is required by the Sonarr API, but is not used.
+        },
+      });
+    } catch (e) {
+      throw new Error(`[Sonarr] Failed to delete file: ${e.message}`);
     }
   }
 

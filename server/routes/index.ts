@@ -16,10 +16,15 @@ import { mapProductionCompany } from '@server/models/Movie';
 import { mapNetwork } from '@server/models/Tv';
 import settingsRoutes from '@server/routes/settings';
 import { appDataPath, appDataStatus } from '@server/utils/appDataVolume';
-import { getAppVersion, getCommitTag } from '@server/utils/appVersion';
 import restartFlag from '@server/utils/restartFlag';
 import { isPerson } from '@server/utils/typeHelpers';
 import { Router } from 'express';
+import {
+  getAppVersion,
+  getCommitTag,
+  getPlusAppVersion,
+  getPlusCommitTag
+} from '@server/utils/appVersion';
 import authRoutes from './auth';
 import collectionRoutes from './collection';
 import discoverRoutes, { createTmdbWithRegionLanguage } from './discover';
@@ -33,6 +38,7 @@ import searchRoutes from './search';
 import serviceRoutes from './service';
 import tvRoutes from './tv';
 import user from './user';
+import overseerrPlusRoutes from '@server/routes/overseerrPlus';
 
 const router = Router();
 
@@ -43,8 +49,12 @@ router.get<unknown, StatusResponse>('/status', async (req, res) => {
 
   const currentVersion = getAppVersion();
   const commitTag = getCommitTag();
-  let updateAvailable = false;
+  const plusCurrentVersion = getPlusAppVersion();
+  const plusCommitTag = getPlusCommitTag();
+  const updateAvailable = false;
+  let plusUpdateAvailable = false;
   let commitsBehind = 0;
+  let plusCommitsBehind = 0;
 
   if (currentVersion.startsWith('develop-') && commitTag !== 'local') {
     const commits = await githubApi.getOverseerrCommits();
@@ -53,9 +63,11 @@ router.get<unknown, StatusResponse>('/status', async (req, res) => {
       const filteredCommits = commits.filter(
         (commit) => !commit.commit.message.includes('[skip ci]')
       );
-      if (filteredCommits[0].sha !== commitTag) {
-        updateAvailable = true;
-      }
+
+      // Commenting out this code since there wont be an update available
+      // if (filteredCommits[0].sha !== commitTag) {
+      //   updateAvailable = true;
+      // }
 
       const commitIndex = filteredCommits.findIndex(
         (commit) => commit.sha === commitTag
@@ -72,16 +84,40 @@ router.get<unknown, StatusResponse>('/status', async (req, res) => {
       const latestVersion = releases[0];
 
       if (!latestVersion.name.includes(currentVersion)) {
-        updateAvailable = true;
+        // updateAvailable = true;
       }
+    }
+  }
+
+  // Get OverseerrPlus release data
+  const releases = await githubApi.getOverseerrPlusReleases();
+
+  if (releases.length) {
+    const filteredReleases = releases.filter(
+      (release) => !release.prerelease === true
+    );
+
+    if (releases[0].tag_name !== plusCommitTag) {
+      plusUpdateAvailable = true;
+    }
+    const releaseIndex = filteredReleases.findIndex(
+      (release) => release.tag_name === plusCommitTag
+    );
+
+    if (plusUpdateAvailable) {
+      plusCommitsBehind = releaseIndex;
     }
   }
 
   return res.status(200).json({
     version: getAppVersion(),
     commitTag: getCommitTag(),
+    plusVersion: plusCurrentVersion,
+    plusCommitTag: plusCommitTag,
     updateAvailable,
     commitsBehind,
+    plusUpdateAvailable,
+    plusCommitsBehind,
     restartRequired: restartFlag.isSet(),
   });
 });
@@ -125,6 +161,7 @@ router.use('/service', isAuthenticated(), serviceRoutes);
 router.use('/issue', isAuthenticated(), issueRoutes);
 router.use('/issueComment', isAuthenticated(), issueCommentRoutes);
 router.use('/auth', authRoutes);
+router.use('/overseerrPlus', overseerrPlusRoutes);
 
 router.get('/regions', isAuthenticated(), async (req, res, next) => {
   const tmdb = new TheMovieDb();

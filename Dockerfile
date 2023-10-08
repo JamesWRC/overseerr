@@ -7,10 +7,10 @@ ENV TARGETPLATFORM=${TARGETPLATFORM:-linux/amd64}
 
 RUN \
   case "${TARGETPLATFORM}" in \
-    'linux/arm64' | 'linux/arm/v7') \
-      apk add --no-cache python3 make g++ && \
-      ln -s /usr/bin/python3 /usr/bin/python \
-      ;; \
+  'linux/arm64' | 'linux/arm/v7') \
+  apk add --no-cache python3 make g++ && \
+  ln -s /usr/bin/python3 /usr/bin/python \
+  ;; \
   esac
 
 COPY package.json yarn.lock ./
@@ -21,6 +21,10 @@ COPY . ./
 ARG COMMIT_TAG
 ENV COMMIT_TAG=${COMMIT_TAG}
 
+# OverseerrPlus commit tags
+ARG PLUS_COMMIT_TAG
+ENV PLUS_COMMIT_TAG=${PLUS_COMMIT_TAG}
+
 RUN yarn build
 
 # remove development dependencies
@@ -30,7 +34,8 @@ RUN rm -rf src server .next/cache
 
 RUN touch config/DOCKER
 
-RUN echo "{\"commitTag\": \"${COMMIT_TAG}\"}" > committag.json
+# Added overseerrPlus git tags to file
+RUN echo "{\"commitTag\": \"${COMMIT_TAG}\", \"plusCommitTag\": \"${PLUS_COMMIT_TAG}\"}" > committag.json
 
 
 FROM node:16.17-alpine

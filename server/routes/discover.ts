@@ -32,15 +32,15 @@ export const createTmdbWithRegionLanguage = (user?: User): TheMovieDb => {
     user?.settings?.region === 'all'
       ? ''
       : user?.settings?.region
-      ? user?.settings?.region
-      : settings.main.region;
+        ? user?.settings?.region
+        : settings.main.region;
 
   const originalLanguage =
     user?.settings?.originalLanguage === 'all'
       ? ''
       : user?.settings?.originalLanguage
-      ? user?.settings?.originalLanguage
-      : settings.main.originalLanguage;
+        ? user?.settings?.originalLanguage
+        : settings.main.originalLanguage;
 
   return new TheMovieDb({
     region,
@@ -646,12 +646,12 @@ discoverRoutes.get('/trending', async (req, res, next) => {
       results: data.results.map((result) =>
         isMovie(result)
           ? mapMovieResult(
-              result,
-              media.find(
-                (med) =>
-                  med.tmdbId === result.id && med.mediaType === MediaType.MOVIE
-              )
+            result,
+            media.find(
+              (med) =>
+                med.tmdbId === result.id && med.mediaType === MediaType.MOVIE
             )
+          )
           : isPerson(result)
           ? mapPersonResult(result)
           : isCollection(result)

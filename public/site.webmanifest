@@ -66,15 +66,38 @@
       ]
     },
     {
-      "name": "Settings",
-      "url": "./profile/settings",
+      "name": "Arrivals",
+      "url": "./arrivals",
       "icons": [
         {
-          "src": "./cog-icon-192x192.png",
+          "src": "./user-icon-192x192.png",
           "sizes": "192x192",
           "type": "image/png"
         }
       ]
-    }
-  ]
+    },
+  },
+  {
+    "name": "Support Servers",
+    "url": "./support-servers",
+    "icons": [
+      {
+        "src": "./user-icon-192x192.png",
+        "sizes": "192x192",
+        "type": "image/png"
+      }
+    ]
+  },
+  {
+    "name": "Settings",
+    "url": "./profile/settings",
+    "icons": [
+      {
+        "src": "./cog-icon-192x192.png",
+        "sizes": "192x192",
+        "type": "image/png"
+      }
+    ]
+  }
+]
 }

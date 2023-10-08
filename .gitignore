@@ -65,5 +65,13 @@ cypress/screenshots
 # TS Build Info
 tsconfig.tsbuildinfo
 
+# OverseerrPlus prod config test
+prodConfig
+*.env
+committag.json
+
+# Other OverseerrPlus files
+config/*
+
 # Config Cache Directory
 config/cache

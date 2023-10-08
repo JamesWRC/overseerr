@@ -14,6 +14,7 @@ export interface LogsResultsResponse extends PaginatedResponse {
 
 export interface SettingsAboutResponse {
   version: string;
+  plusVersion: string;
   totalRequests: number;
   totalMediaItems: number;
   tz?: string;
@@ -59,7 +60,11 @@ export interface CacheResponse {
 export interface StatusResponse {
   version: string;
   commitTag: string;
+  plusVersion: string;
+  plusCommitTag: string;
   updateAvailable: boolean;
   commitsBehind: number;
+  plusUpdateAvailable: boolean;
+  plusCommitsBehind: number;
   restartRequired: boolean;
 }
