@@ -1,6 +1,6 @@
 {
   "name": "overseerr",
-  "version": "1.32.5",
+  "version": "1.33.2",
   "private": true,
   "scripts": {
     "dev": "nodemon -e ts --watch server --watch overseerr-api.yml -e .json,.ts,.yml -x ts-node -r tsconfig-paths/register --files --project server/tsconfig.json server/index.ts",
@@ -68,7 +68,6 @@
     "openpgp": "5.7.0",
     "plex-api": "5.3.2",
     "pug": "3.0.2",
-    "pulltorefreshjs": "0.1.22",
     "react": "18.2.0",
     "react-ace": "10.1.0",
     "react-animate-height": "2.1.2",
